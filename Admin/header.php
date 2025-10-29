@@ -331,7 +331,19 @@
             background-color: #FFC107;
             color: black;
         }
+        /* Add currency formatting style */
+.currency-cell {
+    text-align: right;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #2c5aa0; 
+}
 
+/* Ensure proper alignment for the fee structure column */
+.table-responsive td:nth-child(3) {
+    text-align: left;
+    font-weight: 500;
+}
         .badge-disabled {
             background-color: #F44336;
             color: white;

@@ -80,7 +80,11 @@
         <i class="fas fa-fw fa-chart-area"></i>
         <span>View Farmers</span></a>
 </li>
-
+<li class="nav-item">
+    <a class="nav-link" href="farmer_report.php">
+        <i class="fas fa-fw fa-flag-checkered"></i>
+        <span>Report Issues</span></a>
+</li>
 <!-- Nav Item - Tables -->
 <li class="nav-item">
     <a class="nav-link" href="profile.php">
