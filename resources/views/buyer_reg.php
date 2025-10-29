@@ -178,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mail->send();
             echo '<div class="alert alert-success text-center" style="font-size: 1.1rem;">
                 <strong>Registration successful! 🎉</strong><br>
-                Please check your email to activate your account. Your account status will be "New Buyer" until approved by admin.
+                Please check your email to activate your account.
             </div>';
         } catch (Exception $e) {
             error_log("Email could not be sent. Error: {$mail->ErrorInfo}");

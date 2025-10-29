@@ -9,6 +9,7 @@ require_once __DIR__ . '/../../load_env.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+// Assuming you have a full autoloader setup for PHPMailer
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 // Helper function to handle file upload
@@ -25,325 +26,231 @@ function handleFileUpload($file, $user_id, $type = 'profile') {
     }
     
     if ($file['size'] > $max_size) {
-        return ['error' => 'File size exceeds ' . ($type === 'profile' ? '2MB' : '5MB') . ' limit.'];
+        return ['error' => 'File size exceeds ' . ($type === 'profile' ? '2MB' : '5MB') . '.'];
     }
 
-    // Use absolute paths
-    $base_dir = $_SERVER['DOCUMENT_ROOT'] . '/farmerBuyerCon/';
-    $upload_dir = ($type === 'profile') ? $base_dir . 'admin/Uploads/' : $base_dir . 'admin/Uploads/documents/';
-    
-    // Create directory if it doesn't exist
+    $upload_dir = __DIR__ . "/../../uploads/farmers_docs/{$user_id}/";
     if (!is_dir($upload_dir)) {
-        if (!mkdir($upload_dir, 0755, true)) {
-            return ['error' => 'Failed to create upload directory.'];
-        }
+        mkdir($upload_dir, 0777, true);
     }
 
     $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-    $prefix = ($type === 'profile') ? 'user_' : $type . '_';
-    $filename = $prefix . $user_id . '_' . time() . '.' . $ext;
-    $destination = $upload_dir . $filename;
-
-    if (move_uploaded_file($file['tmp_name'], $destination)) {
-        // Return relative paths for database storage
-        return ($type === 'profile') ? 'admin/Uploads/' . $filename : [
-            'document_path' => 'admin/Uploads/documents/' . $filename,
-            'document_name' => $file['name']
-        ];
+    $new_file_name = $type . '_' . time() . '.' . $ext;
+    $upload_path = $upload_dir . $new_file_name;
+    
+    if (move_uploaded_file($file['tmp_name'], $upload_path)) {
+        // Return the path relative to the uploads folder for DB storage
+        return "uploads/farmers_docs/{$user_id}/" . $new_file_name;
+    } else {
+        return ['error' => 'Failed to move uploaded file.'];
     }
-    return ['error' => 'Failed to upload file.'];
 }
 
+// Ensure the user_id is passed if you intend to use it for file handling, 
+// otherwise generate one or use the auto-increment ID after insertion.
+// For this code, we'll use a temporary hash for the folder name before getting the real user_id.
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Personal Information
-    $first_name = $_POST['first_name'];
-    $last_name = $_POST['last_name'];
-    $email = $_POST['email'];
-    $phone = $_POST['phone'];
-    $gender = $_POST['gender'];
-    $address = $_POST['address'];
-    $state_id = $_POST['state_id'];
-    $city_id = $_POST['city_id'];
-    $password = $_POST['password'];
-    $repeat_password = $_POST['repeat_password'];
-
-    // Farm Information
-    $farm_name = $_POST['farm_name'] ?? '';
-    $farm_size = $_POST['farm_size'] ?? '';
-    $farm_full_address = $_POST['farm_full_address'] ?? '';
-    $land_ownership_type = $_POST['land_ownership_type'] ?? '';
-    $farming_experience = $_POST['farming_experience'] ?? '';
     
-    // Identification
-    $cac_number = $_POST['cac_number'] ?? '';
-    $nin = $_POST['nin'] ?? '';
+    $first_name = trim($_POST['first_name'] ?? '');
+    $last_name = trim($_POST['last_name'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $phone_number = trim($_POST['phone_number'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $confirm_password = $_POST['confirm_password'] ?? '';
+    $state_id = (int)($_POST['state'] ?? 0);
+    $city_id = (int)($_POST['city'] ?? 0);
+    $address = trim($_POST['address'] ?? '');
+    $national_id = trim($_POST['national_id'] ?? '');
+    $farm_location = trim($_POST['farm_location'] ?? '');
+    $farm_size = trim($_POST['farm_size'] ?? '');
 
-    // Get state and city names for text fields
-    $state_name = '';
-    $city_name = '';
-    
-    $location_stmt = $conn->prepare("SELECT s.state_name, c.city_name 
-                                    FROM states s 
-                                    LEFT JOIN cities c ON s.state_id = c.state_id 
-                                    WHERE s.state_id = ? AND c.city_id = ?");
-    $location_stmt->bind_param("ii", $state_id, $city_id);
-    $location_stmt->execute();
-    $location_result = $location_stmt->get_result();
-    if ($location_row = $location_result->fetch_assoc()) {
-        $state_name = $location_row['state_name'];
-        $city_name = $location_row['city_name'];
+    $errors = [];
+
+    // Basic Validation (Expanded for context)
+    if (empty($first_name) || empty($last_name) || empty($email) || empty($phone_number) || empty($password) || empty($confirm_password) || empty($national_id)) {
+        $errors[] = "All required fields must be filled.";
     }
-    $location_stmt->close();
-    
-    // Create farm location text
-    $farm_location_text = $city_name . ', ' . $state_name;
-    $farm_state_text = $state_name;
-
-    // Validation
-    if ($password !== $repeat_password) {
-        echo '<div class="alert alert-danger">Passwords do not match.</div>';
-        exit;
+    if ($password !== $confirm_password) {
+        $errors[] = "Passwords do not match.";
     }
-
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = "Invalid email format.";
+    }
+    
     // Check if email already exists
-    $check_stmt = $conn->prepare("SELECT user_id FROM users WHERE email = ?");
-    $check_stmt->bind_param("s", $email);
-    $check_stmt->execute();
-    $check_result = $check_stmt->get_result();
-    
-    if (mysqli_num_rows($check_result) > 0) {
-        echo '<div class="alert alert-danger">Email already registered.</div>';
-        exit;
+    if (empty($errors)) {
+        $stmt = $conn->prepare("SELECT user_id FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows > 0) {
+            $errors[] = "This email is already registered.";
+        }
+        $stmt->close();
     }
-    mysqli_stmt_close($check_stmt);
+    
+    // Check if files were uploaded and are valid (minimal check)
+    if (empty($_FILES['profile_picture']['name'])) {
+         $errors[] = "Profile picture is required.";
+    }
+    if (empty($_FILES['national_id_doc']['name'])) {
+         $errors[] = "National ID document is required.";
+    }
 
-    // Hash password and generate token
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-    $token = bin2hex(random_bytes(32));
-    $cbn_approved = 0;
-    $is_verified = 0;
-    $info_completed = 1;
 
-    // Handle profile picture upload
-    $profile_picture = null;
-    if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] != UPLOAD_ERR_NO_FILE) {
-        $file_result = handleFileUpload($_FILES['profile_picture'], 'temp', 'profile');
-        if (is_array($file_result) && isset($file_result['error'])) {
-            echo '<div class="alert alert-danger">Profile Picture: ' . $file_result['error'] . '</div>';
+    if (empty($errors)) {
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        $verification_token = bin2hex(random_bytes(32));
+        
+        // Use a temporary folder name (e.g., hash of email) before getting the real user_id
+        $temp_folder_id = md5($email);
+
+        // Upload files using the temporary ID
+        $profile_picture_result = handleFileUpload($_FILES['profile_picture'], $temp_folder_id, 'profile');
+        $national_id_result = handleFileUpload($_FILES['national_id_doc'], $temp_folder_id, 'national_id');
+        $other_document_result = handleFileUpload($_FILES['other_document'], $temp_folder_id, 'other_doc'); // Optional file
+        
+        // Check for file upload errors
+        if (isset($profile_picture_result['error'])) $errors[] = "Profile Picture: " . $profile_picture_result['error'];
+        if (isset($national_id_result['error'])) $errors[] = "National ID Doc: " . $national_id_result['error'];
+        if (isset($other_document_result['error'])) $errors[] = "Other Document: " . $other_document_result['error'];
+
+        if (!empty($errors)) {
+            echo '<div class="alert alert-danger">' . implode('<br>', $errors) . '</div>';
             exit;
         }
-        $profile_picture = $file_result;
-    }
 
-    // Insert user into database with ALL fields
-    $sql = "INSERT INTO users (
-        first_name, last_name, email, phone, gender, address, state_id, city_id, password, 
-        verification_token, cbn_approved, is_verified, info_completed, 
-        cac_number, nin, farm_name, farm_size, farm_full_address, farm_location_text, farm_state_text,
-        land_ownership_type, farming_experience, profile_picture
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    
-    $stmt = $conn->prepare($sql);
-    
-    if (!$stmt) {
-        echo '<div class="alert alert-danger">Database error: ' . $conn->error . '</div>';
-        exit;
-    }
+        $profile_picture_path = is_array($profile_picture_result) ? null : $profile_picture_result;
+        $national_id_path = is_array($national_id_result) ? null : $national_id_result;
+        $other_document_path = is_array($other_document_result) ? null : $other_document_result;
 
-    // Convert empty strings to NULL for numeric fields
-    $farm_size = ($farm_size === '') ? null : $farm_size;
-    $farming_experience = ($farming_experience === '') ? null : $farming_experience;
-    
-    // Debug: Check values before binding
-    error_log("Password: " . $password);
-    error_log("Hashed Password: " . $hashedPassword);
-    error_log("Farm Location Text: " . $farm_location_text);
-    error_log("Farm State Text: " . $farm_state_text);
-    error_log("Farm Full Address: " . $farm_full_address);
 
-    // Bind parameters - make sure the types match your database schema
-    // s = string, i = integer, d = double
-    $stmt->bind_param("ssssssiisssiisssdssssis", 
-        $first_name,       // s
-        $last_name,        // s
-        $email,            // s
-        $phone,            // s
-        $gender,           // s
-        $address,          // s
-        $state_id,         // i
-        $city_id,          // i
-        $hashedPassword,   // s
-        $token,            // s
-        $cbn_approved,     // i
-        $is_verified,      // i
-        $info_completed,   // i
-        $cac_number,       // s
-        $nin,              // s
-        $farm_name,        // s
-        $farm_size,        // d (double for decimal)
-        $farm_full_address, // s
-        $farm_location_text, // s
-        $farm_state_text,  // s
-        $land_ownership_type, // s
-        $farming_experience, // i
-        $profile_picture   // s
-    );
+        // Prepare SQL statement to insert user data
+        // *** CRITICAL UPDATE: Setting cbn_approved = 0 and rejection_reason = NULL ***
+        $sql = "INSERT INTO users (
+                    first_name, last_name, email, phone_number, password, user_type, 
+                    state_id, city_id, address, profile_picture, national_id, farm_location, farm_size, other_document,
+                    is_verified, cbn_approved, rejection_reason, verification_token, date_registered
+                ) VALUES (
+                    ?, ?, ?, ?, ?, 'farmer', 
+                    ?, ?, ?, ?, ?, ?, ?, ?, 
+                    0, 0, NULL, ?, NOW()
+                )";
+                
+        $stmt = mysqli_prepare($conn, $sql);
 
-    if ($stmt->execute()) {
-        $user_id = mysqli_insert_id($conn);
+        // Bind parameters
+        $bind_success = mysqli_stmt_bind_param(
+            $stmt, 
+            "sssssssssssssss", 
+            $first_name, $last_name, $email, $phone_number, $hashed_password, 
+            $state_id, $city_id, $address, $profile_picture_path, $national_id, 
+            $farm_location, $farm_size, $other_document_path, $verification_token
+        );
         
-        // Debug: Check if user was inserted
-        error_log("User ID inserted: " . $user_id);
-
-        // Rename profile picture with actual user_id
-        if ($profile_picture) {
-            $base_dir = $_SERVER['DOCUMENT_ROOT'] . '/farmerBuyerCon/';
-            $old_path = $base_dir . $profile_picture;
-            $ext = pathinfo($profile_picture, PATHINFO_EXTENSION);
-            $new_filename = 'user_' . $user_id . '_' . time() . '.' . $ext;
-            
-            $documents_dir = $base_dir . 'admin/Uploads/documents/';
-            if (!is_dir($documents_dir)) {
-                mkdir($documents_dir, 0755, true);
-            }
-            
-            $new_path = $documents_dir . $new_filename;
-            
-            if (file_exists($old_path) && rename($old_path, $new_path)) {
-                $new_profile_picture = 'admin/Uploads/documents/' . $new_filename;
-                $update_stmt = mysqli_prepare($conn, "UPDATE users SET profile_picture = ? WHERE user_id = ?");
-                mysqli_stmt_bind_param($update_stmt, "si", $new_profile_picture, $user_id);
-                mysqli_stmt_execute($update_stmt);
-                mysqli_stmt_close($update_stmt);
-            }
+        if (!$bind_success) {
+            echo '<div class="alert alert-danger">Internal error: Parameter binding failed.</div>';
+            error_log("Parameter binding failed: " . $stmt->error);
+            mysqli_stmt_close($stmt);
+            exit;
         }
 
-        // Handle document uploads
-        $document_types = ['ninDocument', 'cacDocument', 'landDocument'];
-        foreach ($document_types as $doc_type) {
-            if (isset($_FILES[$doc_type]) && $_FILES[$doc_type]['error'] != UPLOAD_ERR_NO_FILE) {
-                $file_result = handleFileUpload($_FILES[$doc_type], $user_id, $doc_type);
-                if (is_array($file_result) && isset($file_result['error'])) {
-                    // Log error but don't stop registration
-                    error_log("Document upload error: " . $file_result['error']);
-                    continue;
-                }
-                if ($file_result) {
-                    $doc_stmt = mysqli_prepare($conn, "INSERT INTO user_documents (user_id, document_path, document_name) VALUES (?, ?, ?)");
-                    mysqli_stmt_bind_param($doc_stmt, "iss", $user_id, $file_result['document_path'], $file_result['document_name']);
-                    mysqli_stmt_execute($doc_stmt);
-                    mysqli_stmt_close($doc_stmt);
-                }
+
+        if (mysqli_stmt_execute($stmt)) {
+            $new_user_id = mysqli_insert_id($conn);
+            
+            // --- File Upload Finalization: Rename temporary folder to user_id ---
+            $old_dir = __DIR__ . "/../../uploads/farmers_docs/{$temp_folder_id}";
+            $new_dir = __DIR__ . "/../../uploads/farmers_docs/{$new_user_id}";
+            if (is_dir($old_dir)) {
+                rename($old_dir, $new_dir);
             }
-        }
-
-        // Send activation email
-        echo '<div class="alert alert-success text-center" style="font-size: 1.1rem;">
-            <strong>Registration successful! 🎉</strong><br>
-            Please check your email to activate your account.
-        </div>';
-
-        try {
-            $activationLink = "http://localhost/farmerBuyerCon/resources/activate.php?token=$token";
-
+            // --- End File Upload Finalization ---
+            
+            
+            echo '<div class="alert alert-success">Success! Your account has been registered. Please check your email to activate your account. You will receive a separate email once your registration has been **approved by the Admin**.</div>';
+            
+            // --- PHPMailer Logic (Adjust SMTP settings as needed) ---
             $mail = new PHPMailer(true);
-            $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = $_ENV['SMTP_USER'];
-            $mail->Password = $_ENV['SMTP_PASS'];
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
+            try {
+                // Server settings
+                $mail->isSMTP();
+                $mail->Host       = getenv('MAIL_HOST');
+                $mail->SMTPAuth   = true;
+                $mail->Username   = getenv('MAIL_USERNAME');
+                $mail->Password   = getenv('MAIL_PASSWORD');
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port       = getenv('MAIL_PORT');
 
-            $mail->setFrom($_ENV['SMTP_USER'], 'FarmerBuyerCon');
-            $mail->addAddress($email, $first_name);
+                // Recipients
+                $mail->setFrom(getenv('MAIL_FROM_ADDRESS'), getenv('MAIL_FROM_NAME'));
+                $mail->addAddress($email, $first_name . ' ' . $last_name);
 
-            $mail->isHTML(true);
-            $mail->Subject = 'Activate your FarmerBuyerCon account';
-            $mail->Body = "
-            <html>
-            <head>
-              <style>
-                body {
-                  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                  background-color: #f9f9f9;
-                  margin: 0;
-                  padding: 0;
-                }
-                .container {
-                  max-width: 600px;
-                  margin: 30px auto;
-                  background-color: #ffffff;
-                  padding: 30px;
-                  border-radius: 8px;
-                  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-                }
-                .header {
-                  text-align: center;
-                  padding-bottom: 20px;
-                }
-                .header h2 {
-                  color: #2f855a;
-                }
-                .content {
-                  font-size: 16px;
-                  line-height: 1.6;
-                  color: #333333;
-                }
-                .button {
-                  display: inline-block;
-                  margin-top: 20px;
-                  padding: 12px 20px;
-                  background-color: #38a169;
-                  color: #ffffff !important;
-                  text-decoration: none;
-                  font-weight: bold;
-                  border-radius: 6px;
-                }
-                .footer {
-                  margin-top: 30px;
-                  font-size: 13px;
-                  color: #888888;
-                  text-align: center;
-                }
-              </style>
-            </head>
-            <body>
-              <div class='container'>
-                <div class='header'>
-                  <h2>Welcome to FarmerBuyerCon 👋</h2>
-                </div>
-                <div class='content'>
-                  <p>Hi $first_name,</p>
-                  <p>Thank you for signing up on <strong>FarmerBuyerCon</strong>! To start using your account, please confirm your email address by clicking the button below:</p>
-                  <p style='text-align: center;'>
-                    <a class='button' href='$activationLink'>Activate My Account</a>
-                  </p>
-                  <p style='color: red;'><strong>Note:</strong> You will need to wait for 4 to 5 days for your registration to be approved. 
-                  You will receive an email informing you whether you have been approved or 
-                  rejected after your uploaded documents have been thoroughly reviewed.</p>
-                  <p>If you didn't request this account, you can safely ignore this email.</p>
-                </div>
-                <div class='footer'>
-                  &copy; " . date('Y') . " FarmerBuyerCon. All rights reserved.
-                </div>
-              </div>
-            </body>
-            </html>
-            ";
+                // Content
+                $mail->isHTML(true);
+                $mail->Subject = 'Account Activation & Approval Notice';
+                
+                // Construct the activation link based on your site structure
+                $activationLink = getenv('APP_URL') . "/activate.php?token={$verification_token}";
 
-            $mail->send();
-        } catch (Exception $e) {
-            error_log("Email could not be sent. Error: {$mail->ErrorInfo}");
+                $mail->Body    = "
+                <html>
+                <head>
+                    <style>
+                        .email-container { max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; border: 1px solid #ccc; padding: 20px; }
+                        .header { background-color: #2f855a; color: white; padding: 10px; text-align: center; }
+                        .content { padding: 20px 0; line-height: 1.6; }
+                        .button { display: inline-block; padding: 10px 20px; background-color: #38a169; color: white !important; text-decoration: none; border-radius: 5px; }
+                        .footer { font-size: 0.8em; text-align: center; color: #666; padding-top: 15px; border-top: 1px solid #eee; }
+                    </style>
+                </head>
+                <body>
+                    <div class='email-container'>
+                        <div class='header'>
+                            <h2>Farmer Registration</h2>
+                        </div>
+                        <div class='content'>
+                            <p>Hi $first_name,</p>
+                            <p>Thank you for signing up! Your final account access is dependent on **two steps**: email activation and Admin approval.</p>
+                            
+                            <p><strong>STEP 1: Email Activation</strong></p>
+                            <p>Please confirm your email address by clicking the button below:</p>
+                            <p style='text-align: center;'>
+                                <a class='button' href='$activationLink'>Activate My Account</a>
+                            </p>
+
+                            <p><strong>STEP 2: Admin Approval</strong></p>
+                            <p style='color: red;'><strong>Note:</strong> After activation, your account status will be **Pending**. You will need to wait for your uploaded documents to be thoroughly reviewed by an Admin. You will receive a separate email informing you whether you have been **approved or rejected**.</p>
+                            
+                            <p>If you didn't request this account, you can safely ignore this email.</p>
+                        </div>
+                        <div class='footer'>
+                            &copy; " . date('Y') . " FarmerBuyerCon. All rights reserved.
+                        </div>
+                    </div>
+                </body>
+                </html>
+                ";
+
+                $mail->send();
+            } catch (Exception $e) {
+                error_log("Email could not be sent. Error: {$mail->ErrorInfo}");
+            }
+
+        } else {
+            echo '<div class="alert alert-danger">Error: ' . $stmt->error . '</div>';
+            error_log("Registration error: " . $stmt->error);
         }
-
+        
+        mysqli_stmt_close($stmt);
     } else {
-        echo '<div class="alert alert-danger">Error: ' . $stmt->error . '</div>';
-        error_log("Registration error: " . $stmt->error);
+        echo '<div class="alert alert-danger">' . implode('<br>', $errors) . '</div>';
     }
-    
-    mysqli_stmt_close($stmt);
+
 } else {
     echo '<div class="alert alert-danger">Invalid request method.</div>';
 }
+
+mysqli_close($conn);
 ?>
