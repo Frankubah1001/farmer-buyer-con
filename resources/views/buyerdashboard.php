@@ -35,29 +35,29 @@ while ($recent_order_data = $recent_order_result->fetch_assoc()) {
 }
 $recent_order_stmt->close();
 
-// 2. Most Farm Produce Ordered
-$most_produce_query = "SELECT pl.produce, SUM(o.quantity) AS total_quantity
+// 2. Top Farm Produce Ordered for Chart (Fetching top 5)
+// MODIFIED QUERY to get data for the bar chart
+$top_produce_query = "SELECT pl.produce, SUM(o.quantity) AS total_quantity
                       FROM orders o
                       JOIN produce_listings pl ON o.produce_id = pl.prod_id
                       WHERE o.buyer_id = ?
                       GROUP BY pl.produce
                       ORDER BY total_quantity DESC
-                      LIMIT 1";
-$most_produce_stmt = $conn->prepare($most_produce_query);
-$most_produce_stmt->bind_param("i", $buyer_id);
-$most_produce_stmt->execute();
-$most_produce_result = $most_produce_stmt->get_result();
+                      LIMIT 5"; 
+$top_produce_stmt = $conn->prepare($top_produce_query);
+$top_produce_stmt->bind_param("i", $buyer_id);
+$top_produce_stmt->execute();
+$top_produce_result = $top_produce_stmt->get_result();
 
-if ($most_produce_result->num_rows > 0) {
-    $most_produce_data = $most_produce_result->fetch_assoc();
-    $most_purchased_produce = [
-        'produce' => $most_produce_data['produce'],
-        'quantity' => $most_produce_data['total_quantity'],
+$top_purchased_produce = [];
+while ($produce_data = $top_produce_result->fetch_assoc()) {
+    $top_purchased_produce[] = [
+        'produce' => $produce_data['produce'],
+        // Cast quantity to int for clean chart data
+        'quantity' => (int)$produce_data['total_quantity'], 
     ];
-} else {
-    $most_purchased_produce = null;
 }
-$most_produce_stmt->close();
+$top_produce_stmt->close();
 
 // 3. Farmers Info (Limited to those the buyer has ordered from)
 $farmers_query = "SELECT u.user_id, u.first_name, u.last_name, u.address, AVG(r.rating) AS average_rating
@@ -118,9 +118,10 @@ $order_status_stmt->close();
 
 $conn->close();
 
+// Renamed key for chart data
 echo json_encode([
     'recent_orders' => $recent_orders,
-    'most_purchased_produce' => $most_purchased_produce,
+    'top_purchased_produce' => $top_purchased_produce,
     'farmers' => $farmers,
     'all_farmers' => $all_farmers,
     'order_status' => $order_status

@@ -81,6 +81,11 @@
         <span>View Farmers</span></a>
 </li>
 <li class="nav-item">
+    <a class="nav-link" href="book_transport.php">
+        <i class="fas fa-fw fa-truck"></i>
+        <span>Book Transport</span></a>
+</li>
+<li class="nav-item">
     <a class="nav-link" href="reports.php">
         <i class="fas fa-fw fa-flag-checkered"></i>
         <span>Report Issue</span></a>
