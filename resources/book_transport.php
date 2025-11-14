@@ -266,7 +266,7 @@ include 'buyerheader.php';
 
                 <h6 class="text-success text-center mb-4"><i class="fas fa-handshake"></i> Select Payment Option</h6>
                 <div class="d-flex gap-3 justify-content-center">
-                    <button class="btn btn-pay-now text-white pay-btn" id="payNowBtn">
+                    <button class="btn btn-pay-now text-white pay-btn mr-5" id="payNowBtn">
                         <i class="fas fa-credit-card"></i> Pay Now
                     </button>
                     <button class="btn btn-pay-delivery text-white pay-btn" id="payDeliveryBtn">

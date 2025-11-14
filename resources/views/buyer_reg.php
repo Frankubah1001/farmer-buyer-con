@@ -5,48 +5,65 @@ require_once __DIR__ . '/../../load_env.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require_once __DIR__ . '/../../phpmailer/vendor/phpmailer/phpmailer/src/Exception.php';
-require_once __DIR__ . '/../../phpmailer/vendor/phpmailer/phpmailer/src/PHPMailer.php';
-require_once __DIR__ . '/../../phpmailer/vendor/phpmailer/phpmailer/src/SMTP.php';
+// ... (Require PHPMailer files)
 
 // ---------- VALIDATION ----------
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
-    echo '<div class="alert alert-danger">Invalid request method.</div>';
+    echo '<div class="alert alert-danger show">Invalid request method.</div>';
     exit;
 }
 
-$first   = trim($_POST['firstname'] ?? '');
-$last    = trim($_POST['lastname'] ?? '');
-$email   = trim($_POST['email'] ?? '');
-$phone   = trim($_POST['phone'] ?? '');
-$gender  = trim($_POST['gender'] ?? '');
-$address = trim($_POST['address'] ?? '');
-$state   = trim($_POST['state'] ?? '');
-$city    = trim($_POST['city'] ?? '');
+$first     = trim($_POST['firstname'] ?? '');
+$last      = trim($_POST['lastname'] ?? '');
+$email     = trim($_POST['email'] ?? '');
+$phone     = trim($_POST['phone'] ?? '');
+$gender    = trim($_POST['gender'] ?? '');
+$address   = trim($_POST['address'] ?? '');
+$state     = trim($_POST['state'] ?? '');
+$city      = trim($_POST['city'] ?? '');
 $buyer_type = trim($_POST['buyer_type'] ?? '');
 $password = $_POST['password'] ?? '';
 $repeat_password = $_POST['repeat_password'] ?? '';
 
 if (empty($first) || empty($last) || empty($email) || empty($phone) || empty($password) || empty($buyer_type)) {
-    echo '<div class="alert alert-danger">All required fields are mandatory.</div>'; exit;
+    echo '<div class="alert alert-danger show">All required fields are mandatory.</div>'; exit;
 }
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    echo '<div class="alert alert-danger">Invalid e-mail address.</div>'; exit;
+    echo '<div class="alert alert-danger show">Invalid e-mail address.</div>'; exit;
 }
 if ($password !== $repeat_password) {
-    echo '<div class="alert alert-danger">Passwords do not match.</div>'; exit;
+    echo '<div class="alert alert-danger show">Passwords do not match.</div>'; exit;
 }
 if ((!empty($state) && !is_numeric($state)) || (!empty($city) && !is_numeric($city))) {
-    echo '<div class="alert alert-danger">Invalid state/city selection.</div>'; exit;
+    echo '<div class="alert alert-danger show">Invalid state/city selection.</div>'; exit;
 }
 
-// ---------- CHECK DUPLICATE ----------
+// **--- NEW: Password Complexity Check ---**
+// Must contain: at least 8 chars, 1 uppercase, 1 lowercase, 1 digit, 1 symbol
+$passwordRegex = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/';
+if (!preg_match($passwordRegex, $password)) {
+    echo '<div class="alert alert-danger show">
+        Password is weak. It must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a symbol (@, $, !, %, *, ?, &).
+    </div>'; 
+    exit;
+}
+
+// ---------- CHECK DUPLICATE PHONE (NEW CHECK) ----------
+$check_phone = $conn->prepare("SELECT 1 FROM buyers WHERE phone = ?");
+$check_phone->bind_param("s", $phone);
+$check_phone->execute();
+if ($check_phone->get_result()->num_rows > 0) {
+    echo '<div class="alert alert-danger show">Phone number already registered.</div>'; exit;
+}
+$check_phone->close();
+
+// ---------- CHECK DUPLICATE EMAIL (Existing Check) ----------
 $check = $conn->prepare("SELECT 1 FROM buyers WHERE email = ?");
 $check->bind_param("s", $email);
 $check->execute();
 if ($check->get_result()->num_rows > 0) {
-    echo '<div class="alert alert-danger">E-mail already registered.</div>'; exit;
+    echo '<div class="alert alert-danger show">E-mail already registered.</div>'; exit;
 }
 $check->close();
 

@@ -59,7 +59,7 @@ try {
         $suggestions = [];
         if ($result && mysqli_num_rows($result) > 0) {
             while ($row = mysqli_fetch_assoc($result)) {
-                $suggestions[] = $row['produce'] ?? 'null'; // Fallback for debugging
+                $suggestions[] = $row['produce'] ?? 'null';
             }
         } else {
             error_log("No results for query: $query");
@@ -77,6 +77,7 @@ try {
             pl.address,
             pl.available_date,
             pl.quantity AS uploaded_quantity,
+            pl.units,  -- ADDED THIS LINE
             pl.created_at,
             COALESCE(o.remaining_quantity, 'No Order Yet') AS remaining_quantity,
             CASE 
@@ -124,6 +125,7 @@ try {
             pl.available_date,
             pl.created_at,
             pl.quantity,
+            pl.units,  -- ADDED THIS LINE
             pl.price,
             u.first_name,
             u.last_name,
@@ -153,6 +155,7 @@ try {
                     'uploaded_quantity' => $uploaded_quantity,
                     'quantity_ordered' => $ordered_quantity,
                     'remaining_quantity' => $remaining_quantity,
+                    'units' => $row['units'],  // ADDED THIS LINE
                     'average_rating' => floatval($row['rating'])
                 ];
             }

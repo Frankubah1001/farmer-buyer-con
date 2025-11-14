@@ -65,6 +65,7 @@
         .ut{
             margin-top: 20px;
         }
+   
         .form-group{
             position:relative;flex:1;min-width:250px;
         }
@@ -73,13 +74,8 @@
             background:#fff;padding:0 6px;color:#888;font-size:.94rem;
             pointer-events:none;transition:.3s;z-index:1;
         }
-        .form-group input:focus~label,
-        .form-group input:not(:placeholder-shown)~label,
-        .form-group select:focus~label,
-        .form-group select:not([value=""])~label,
-        .form-group textarea:focus~label,
-        .form-group textarea:not(:placeholder-shown)~label{
-            top:0;font-size:.76rem;color:var(--farm-green);font-weight:600;
+        .form-group label.active{
+            top:0;font-size:.90rem;color:var(--farm-green);font-weight:600;
         }
 
         .form-group .form-control,
@@ -126,12 +122,13 @@
 
         .alert{
             padding:.9rem 1.1rem;border-radius:12px;margin:0.8rem 0;font-size:.9rem;
-            opacity:0;transform:translateY(-8px);transition:.3s;
-            box-shadow:0 2px 6px rgba(0,0,0,.1);display:none;
+            opacity:0;transform:translateY(-8px);transition:opacity .3s, transform .3s;
+            box-shadow:0 2px 6px rgba(0,0,0,.1);display:block;
         }
         .alert.show{opacity:1;transform:translateY(0);}
         .alert-success{background:#e8f5e9;color:#2e7d32;border-left:5px solid var(--farm-green);}
         .alert-danger{background:#ffebee;color:#c62828;border-left:5px solid #e53935;}
+        .alert-warning{background:#fff3e0;color:#e67e22;border-left:5px solid #ff8f00;}
 
         .text-link{color:var(--farm-green);font-weight:600;text-decoration:none;transition:.3s;}
         .text-link:hover{color:var(--harvest-gold);text-decoration:underline;}
@@ -167,12 +164,12 @@
             <!-- Name -->
             <div class="form-row">
                 <div class="form-group">
-                    <input type="text" class="form-control" name="firstname" required placeholder=" ">
+                    <input type="text" class="form-control" name="firstname" required>
                     <i class="fas fa-user"></i>
                     <label>First Name</label>
                 </div>
                 <div class="form-group">
-                    <input type="text" class="form-control" name="lastname" required placeholder=" ">
+                    <input type="text" class="form-control" name="lastname" required>
                     <i class="fas fa-user"></i>
                     <label>Last Name</label>
                 </div>
@@ -180,7 +177,7 @@
 
             <!-- Email -->
             <div class="form-group">
-                <input type="email" class="form-control" name="email" required placeholder=" ">
+                <input type="email" class="form-control" name="email" required>
                 <i class="fas fa-envelope"></i>
                 <label>Email Address</label>
             </div>
@@ -188,7 +185,7 @@
             <!-- Phone & Gender -->
             <div class="form-row ut">
                 <div class="form-group">
-                    <input type="text" class="form-control" name="phone" required placeholder=" ">
+                    <input type="text" class="form-control" name="phone" required>
                     <i class="fas fa-phone"></i>
                     <label>Phone Number</label>
                 </div>
@@ -205,9 +202,9 @@
 
             <!-- Address -->
             <div class="form-group">
-                <textarea name="address" required placeholder=" "></textarea>
+                <textarea name="address" required></textarea>
                 <i class="fas fa-map-marker-alt"></i>
-                <label>Delivery Address</label>
+                <label>No/Shop No & Street Address</label>
             </div>
 
             <!-- State & LGA -->
@@ -251,16 +248,16 @@
                 <i class="fas fa-store"></i>
                 <label>Buyer Type</label>
             </div>
-
+ 
             <!-- Passwords -->
             <div class="form-row ut">
                 <div class="form-group">
-                    <input type="password" class="form-control" name="password" required placeholder=" ">
+                    <input type="password" class="form-control" name="password" required>
                     <i class="fas fa-lock"></i>
                     <label>Password</label>
                 </div>
                 <div class="form-group">
-                    <input type="password" class="form-control" name="repeat_password" required placeholder=" ">
+                    <input type="password" class="form-control" name="repeat_password" required>
                     <i class="fas fa-lock"></i>
                     <label>Repeat Password</label>
                 </div>
@@ -283,48 +280,115 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-// Dynamic LGA
-$('#state').on('change', function(){
+// Floating Labels Management
+function initFloatingLabels() {
+    $('.form-group').each(function() {
+        const $group = $(this);
+        const $input = $group.find('input, select, textarea');
+        const $label = $group.find('label');
+
+        // On page load
+        if ($input.val() && $input.val().trim() !== '') {
+            $label.addClass('active');
+        }
+
+        // On input/change
+        $input.on('input change blur', function() {
+            if (this.value && this.value.trim() !== '') {
+                $label.addClass('active');
+            } else {
+                $label.removeClass('active');
+            }
+        });
+    });
+}
+
+// Show Alert with Animation
+function showAlert(message) {
+    const $msg = $('#responseMsg');
+    $msg.html(message);
+
+    const $alert = $msg.find('.alert');
+    $alert.removeClass('show');
+
+    setTimeout(() => {
+        $alert.addClass('show');
+    }, 50);
+
+    // Auto-hide success after 6 seconds
+    if (message.includes('success') || message.includes('successful')) {
+        setTimeout(() => {
+            $alert.removeClass('show');
+            setTimeout(() => $msg.empty(), 400);
+        }, 6000);
+    }
+}
+
+// Dynamic LGA Loading
+$('#state').on('change', function() {
     const sid = $(this).val();
-    const citySelect = $('#city').html('<option value="" disabled selected></option>');
-    if(!sid) return;
-    $.post('get-cities.php', {state_id: sid}, function(d){
-        $.each(d, (_, c) => citySelect.append(`<option value="${c.city_id}">${c.city_name}</option>`));
-    }, 'json');
+    const $city = $('#city').html('<option value="" disabled selected></option>');
+    if (!sid) return;
+
+    $.post('get-cities.php', { state_id: sid }, function(data) {
+        $.each(data, function(_, city) {
+            $city.append(`<option value="${city.city_id}">${city.city_name}</option>`);
+        });
+        initFloatingLabels(); // Re-init after dynamic load
+    }, 'json').fail(function() {
+        showAlert('<div class="alert alert-danger">Failed to load LGAs. Please try again.</div>');
+    });
 });
 
-// Registration
-$('#registerForm').on('submit', function(e){
+// Form Submission
+$('#registerForm').on('submit', function(e) {
     e.preventDefault();
-    const btn = $('#regBtn'), txt = $('#btnText'), spin = $('#spinner');
-    const msg = $('#responseMsg').empty();
 
-    btn.prop('disabled', true); txt.hide(); spin.show();
+    const $btn = $('#regBtn');
+    const $txt = $('#btnText');
+    const $spin = $('#spinner');
+    const $msg = $('#responseMsg').empty();
+
+    $btn.prop('disabled', true);
+    $txt.hide();
+    $spin.show();
 
     $.ajax({
         url: 'views/buyer_reg.php',
         method: 'POST',
         data: $(this).serialize(),
-        success: function(r){
-            msg.html(r);
-            if(r.includes('successful') || r.includes('success')){
+        success: function(response) {
+            const r = response.trim();
+            showAlert(r);
+
+            if (r.includes('success') || r.includes('successful')) {
                 $('#registerForm')[0].reset();
-                $('#state, #city').trigger('change');
+                $('#city').html('<option value="" disabled selected></option>');
+                initFloatingLabels(); // Reset labels
             }
         },
-        error: function(){
-            msg.html('<div class="alert alert-danger show">An error occurred. Please try again.</div>');
+        error: function(xhr) {
+            let errorMsg = 'An unexpected error occurred.';
+            if (xhr.status === 405) {
+                errorMsg = 'Invalid request method.';
+            } else if (xhr.status === 0) {
+                errorMsg = 'No internet connection.';
+            }
+            showAlert('<div class="alert alert-danger">' + errorMsg + '</div>');
         },
-        complete: function(){
-            btn.prop('disabled', false); txt.show(); spin.hide();
+        complete: function() {
+            $btn.prop('disabled', false);
+            $txt.show();
+            $spin.hide();
         }
     });
 });
 
-// Animate alerts
-$(document).on('DOMNodeInserted', '#responseMsg .alert', function(){
-    setTimeout(() => this.classList.add('show'), 10);
+// Initialize on page load
+$(document).ready(function() {
+    initFloatingLabels();
 });
 </script>
+
 </body>
 </html>

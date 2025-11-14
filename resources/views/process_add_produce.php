@@ -21,6 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $location = mysqli_real_escape_string($conn, $_POST['location']);
     $condition = mysqli_real_escape_string($conn, $_POST['condition']);
     $has_order = 0;
+    $unit = $_POST['unit'] ?? '';
     $available = 1; // Available by default
     $allow_visit = mysqli_real_escape_string($conn, $_POST['allow_visit']);
     $visit_time = mysqli_real_escape_string($conn, $_POST['visit_time']);
@@ -77,12 +78,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         user_id, produce, quantity, price, available_date, 
         `address`, `conditions`, `visit_allowed`, `visit_time`, 
         `delivery_offered`, `delivery_areas`, `notes`, `image_path`, 
-        has_order, available, is_filled, order_status
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        has_order, available, is_filled, order_status, units
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = mysqli_prepare($conn, $sql);
     if ($stmt) {
-        mysqli_stmt_bind_param($stmt, "issdsssssssssiiis",
+        mysqli_stmt_bind_param($stmt, "issdsssssssssiiiss",
             $farmer_id,
             $produce,
             $quantity,
@@ -99,7 +100,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $has_order,
             $available,
             $Is_filled,
-            $order_status
+            $order_status,
+            $unit
         );
 
         $insert_result = mysqli_stmt_execute($stmt);

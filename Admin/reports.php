@@ -4,583 +4,317 @@ $active = 'reports';
 ?>
 <!DOCTYPE html>
 <html lang="en">
-    <?php include 'header.php'; ?>
-<body>
-    <!-- Header -->
-    <header class="header">
-        <button class="toggle-btn" id="headerToggle">
-            <i class="fas fa-bars"></i>
-        </button>
-        <div class="user-info">
-            <div class="user-avatar">AD</div>
-            <span>Admin User</span>
-        </div>
-    </header>
+<head>
+    <meta charset="UTF-8">
+    <title>Reports</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* ==== ALL YOUR ORIGINAL STYLES (unchanged) ==== */
+        :root{--farm-green:#1B5E20;--deep-green:#2E7D32;--harvest-gold:#FF8F00;--soil-brown:#4E342E;--rich-brown:#5D4037;--light-field:#F1F8E9;--cream:#FFFBEA;--shadow:rgba(27,94,32,.3);--glow:0 0 20px rgba(255,143,0,.6);--spacing-sm:.8rem;--spacing-md:1.4rem;--spacing-lg:2rem;--radius:16px;--transition:all .3s ease}
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#E8F5E9 0%,#C8E6C9 100%);color:var(--soil-brown);min-height:100vh;line-height:1.6;position:relative}
+        body::before{content:'';position:absolute;inset:0;background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><path fill="%23C8E6C9" opacity="0.2" d="M0 60 Q30 40,60 60 T120 60 V120 H0 Z"/></svg>') repeat;opacity:.15;z-index:-1}
+        h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6{font-weight:700;color:var(--soil-brown)}
+        .text-bold{font-weight:600}.text-muted{color:#6c757d!important}.text-success{color:var(--deep-green)!important}.text-warning{color:var(--harvest-gold)!important}.text-danger{color:#c62828!important}
+        .admin-card{background:#fff;border-radius:var(--radius);overflow:hidden;box-shadow:0 15px 35px var(--shadow);transition:var(--transition);margin-bottom:var(--spacing-lg)}
+        .admin-card:hover{transform:translateY(-10px);box-shadow:0 25px 50px rgba(27,94,32,.4)}
+        .card-header{background:linear-gradient(135deg,var(--farm-green),var(--deep-green));padding:1.8rem 1.5rem;color:#fff;text-align:center;position:relative;border-bottom:4px solid var(--harvest-gold)}
+        .card-header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:70px;background:linear-gradient(transparent,#fff);opacity:.7}
+        .logo{font-size:3rem;color:var(--harvest-gold);animation:float 3s ease-in-out infinite;text-shadow:0 2px 4px rgba(0,0,0,.3)}
+        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+        .card-header h6{font-weight:700;font-size:1.3rem;margin-top:.6rem;letter-spacing:.5px;position:relative;z-index:1}
+        .card-body{padding:2rem 1.8rem}
+        .stats-row{margin-top:1.5rem;margin-bottom:2rem}
+        .stat-card{border-radius:var(--radius);overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,.12);transition:var(--transition);text-align:center;color:#fff;height:100%}
+        .stat-card:hover{transform:translateY(-6px)}
+        .stat-card .card-body{padding:1.8rem 1rem}
+        .stat-card h5{font-size:2.4rem;font-weight:700;margin:0;text-shadow:0 2px 4px rgba(0,0,0,.2)}
+        .stat-card small{font-size:1rem;font-weight:600;opacity:.95;margin-top:.4rem;display:block}
+        .filter-card{background:var(--cream);border:2px solid #e0e0e0;border-radius:var(--radius);padding:1.5rem;margin-bottom:var(--spacing-lg)}
+        .filter-group{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1rem}
+        .filter-group select,.filter-group input{height:50px;padding:0 1rem;border:2px solid #d0d0d0;border-radius:12px;background:#fff;font-size:.95rem;transition:var(--transition);color:#333}
+        .filter-group select:focus,.filter896-group input:focus{border-color:var(--deep-green);box-shadow:var(--glow);background:#fff;outline:none}
+        .btn-filter{background:var(--deep-green);color:#fff;border:none;border-radius:12px;padding:0 1.8rem;height:50px;font-weight:600;cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;justify-content:center;gap:.5rem}
+        .btn-filter:hover{background:#1B5E20;transform:translateY(-2px);box-shadow:0 6px 15px rgba(27,94,32,.4)}
+        .btn-clear{background:#6c757d}
+        .btn-clear:hover{background:#5a6268}
+        .table-container{overflow-x:auto;border-radius:var(--radius);box-shadow:0 8px 25px rgba(0,0,0,.1)}
+        .table{width:100%;border-collapse:collapse;font-size:.95rem;margin:0}
+        .table th{background:var(--light-field);font-weight:700;color:var(--soil-brown);padding:1.2rem 1rem;text-align:left;border-bottom:3px solid var(--deep-green);font-size:.95rem;text-transform:uppercase;letter-spacing:.5px}
+        .table td{padding:1.1rem 1rem;border-bottom:1px solid #e0e0e0;vertical-align:middle;color:#333}
+        .table-hover tbody tr:hover{background:#f8fff8;transform:translateY(-2px);box-shadow:0 6px 12px rgba(0,0,0,.08);transition:var(--transition)}
+        .badge{padding:.5rem 1rem;font-size:.8rem;font-weight:600;border-radius:50px;text-transform:uppercase;letter-spacing:.5px}
+        .badge-pending{background:#fff8e1;color:#e65100;border:1px solid #ffcc80}
+        .badge-resolved{background:#e8f5e9;color:var(--deep-green);border:1px solid #81c784}
+        .badge-review{background:#e3f2fd;color:#1976d2;border:1px solid #64b5f6}
+        .badge-high{background:#ffebee;color:#c62828;border:1px solid #e57373}
+        .badge-medium{background:#fff3e0;color:var(--harvest-gold);border:1px solid #ffb74d}
+        .badge-low{background:#f1f8e9;color:var(--deep-green);border:1px solid #a5d6a7}
 
+        /* ==== NEW ICON-ONLY ACTION BUTTONS ==== */
+        .action-icons{display:flex;gap:.4rem;align-items:center}
+        .action-icons button{background:none;border:none;cursor:pointer;font-size:1.1rem;padding:.35rem;transition:var(--transition)}
+        .action-icons .view{color:#0D47A1}
+        .action-icons .view:hover{color:#4FC3F7}
+        .action-icons .resolve{color:var(--deep-green)}
+        .action-icons .resolve:hover{color:#1B5E20}
+        .action-icons .delete{color:#c62828}
+        .action-icons .delete:hover{color:#e53935}
+
+        /* ==== MODAL ==== */
+        .modal{display:none;position:fixed;z-index:1050;inset:0;background:rgba(0,0,0,.6);animation:fadeIn .3s}
+        .modal-content{background:#fff;margin:4% auto;border-radius:var(--radius);width:90%;max-width:700px;max-height:85vh;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,.3)}
+        .modal-header{padding:1.8rem;background:var(--light-field);border-bottom:2px solid var(--deep-green);display:flex;justify-content:space-between;align-items:center}
+        .modal-header h5{margin:0;font-weight:700;color:var(--soil-brown)}
+        .close{font-size:2.2rem;cursor:pointer;color:#999;transition:var(--transition)}
+        .close:hover{color:#c62828}
+        .modal-body{padding:2rem;font-size:1rem;line-height:1.7;color:#333}
+        .modal-footer{padding:1.5rem;background:#f8f9fa;border-top:1px solid #e0e0e0;text-align:right}
+        .modal-footer .btn{padding:.7rem 1.5rem;border-radius:10px;font-weight:600}
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+        /* ==== RESPONSIVE ==== */
+        @media(max-width:992px){.filter-group{grid-template-columns:1fr 1fr}.stat-card h5{font-size:2rem}}
+        @media(max-width:768px){.filter-group{grid-template-columns:1fr}.table th,.table td{padding:.8rem .6rem;font-size:.85rem}}
+        @media(max-width:576px){.card-body{padding:1.5rem 1.2rem}.modal-content{margin:10% auto;width:95%}.stat-card h5{font-size:1.8rem}}
+    </style>
+</head>
+<?php include 'header.php'; ?>
+<body>
     <?php include 'sidebar.php'; ?>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <h2 class="mb-4">Reports Management</h2>
-        
-        <div class="data-table-container">
-            <div class="table-header">
-                <h4>All Reports</h4>
-                <div class="table-actions">
-                    <button class="btn btn-agri-blue" onclick="exportReports()">
-                        <i class="fas fa-download"></i> Export
-                    </button>
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+
+            <!-- Stats Row -->
+            <div class="row stats-row m-4">
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card" style="background:var(--deep-green);">
+                        <div class="card-body"><h5 id="totalReports">12</h5><small>Total Reports</small></div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card" style="background:#2e7d32;">
+                        <div class="card-body"><h5 id="resolved">8</h5><small>Resolved</small></div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card" style="background:var(--harvest-gold);">
+                        <div class="card-body"><h5 id="pending">3</h5><small>Pending</small></div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card" style="background:#c62828;">
+                        <div class="card-body"><h5 id="highUrgency">1</h5><small>High Urgency</small></div>
+                    </div>
                 </div>
             </div>
-            
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <input type="text" class="form-control" placeholder="Search by Report ID or User..." id="searchReports">
-                </div>
-                <div class="col-md-3">
-                    <select class="form-select" id="filterStatus">
-                        <option value="">All Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="resolved">Resolved</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select class="form-select" id="filterType">
-                        <option value="">All Types</option>
-                        <option value="farmer">Farmer Report</option>
-                        <option value="buyer">Buyer Report</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <button class="btn btn-agri" onclick="applyFilters()">Apply Filters</button>
+
+            <!-- Filters -->
+            <div class="filter-card m-4">
+                <h6 class="mb-3 text-bold"><i class="fas fa-filter me-2"></i> Filter Reports</h6>
+                <div class="filter-group">
+                    <select id="filterStatus"><option value="">All Status</option><option value="pending">Pending</option><option value="in-review">In Review</option><option value="resolved">Resolved</option></select>
+                    <select id="filterUrgency"><option value="">All Urgency</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select>
+                    <select id="filterFarmer"><option value="">All Farmers</option><option value="1">Franklin Nwawuba</option><option value="2">Jacinta Ubah</option><option value="3">Steve Gbenga</option><option value="4">Victor Odogwu</option><option value="5">Goke Ibile</option></select>
+                    <input type="date" id="filterDate">
+                    <button class="btn-filter" onclick="applyFilters()"><i class="fas fa-search"></i> Apply</button>
+                    <button class="btn-filter btn-clear" onclick="clearFilters()"><i class="fas fa-times"></i> Clear</button>
                 </div>
             </div>
-            
-            <div class="table-responsive">
-                <table class="table table-hover" id="reportsTable">
-                    <thead>
-                        <tr>
-                            <th>Report ID</th>
-                            <th>Reported User</th>
-                            <th>Type</th>
-                            <th>Reporter</th>
-                            <th>Reason</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="reportsTableBody">
-                        <!-- Data will be loaded dynamically via AJAX -->
-                    </tbody>
-                </table>
+
+            <!-- Reports Table -->
+            <div class="admin-card m-4">
+                <div class="card-header">
+                    <i class="fas fa-list logo mt-3"></i>
+                    <h6>All Buyer Reports</h6>
+                </div>
+                <div class="card-body p-0 m-3">
+                    <div class="table-container">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th><th>Buyer</th><th>Farmer</th><th>Order #</th><th>Issue</th><th>Description</th><th>Date</th><th>Urgency</th><th>Status</th><th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportsTableBody">
+                                <tr>
+                                    <td><strong>#REP001</strong></td>
+                                    <td>John Doe</td>
+                                    <td>Steve Gbenga</td>
+                                    <td>#16</td>
+                                    <td>Wrong Quantity</td>
+                                    <td>Received 20kg instead of 50kg of rice...</td>
+                                    <td>Nov 05</td>
+                                    <td><span class="badge badge-high text-danger">High</span></td>
+                                    <td><span class="badge badge-pending">Pending</span></td>
+                                    <td class="action-icons">
+                                        <button class="view" title="View" onclick="openModal('#REP001')"><i class="fas fa-eye"></i></button>
+                                        <button class="resolve" title="Resolve" onclick="resolveReport('#REP001')"><i class="fas fa-check"></i></button>
+                                        <button class="delete" title="Delete" onclick="deleteReport('#REP001')"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>#REP002</strong></td>
+                                    <td>Jane Smith</td>
+                                    <td>Jacinta Ubah</td>
+                                    <td>#12</td>
+                                    <td>Poor Quality</td>
+                                    <td>Tomatoes arrived rotten and unusable...</td>
+                                    <td>Nov 03</td>
+                                    <td><span class="badge badge-medium text-black">Medium</span></td>
+                                    <td><span class="badge badge-resolved text-success">Resolved</span></td>
+                                    <td class="action-icons">
+                                        <button class="view" title="View" onclick="openModal('#REP002')"><i class="fas fa-eye"></i></button>
+                                    </td>
+                                </tr>
+                                <!-- more rows … -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            
-            <nav aria-label="Reports pagination">
-                <ul class="pagination justify-content-end" id="paginationControls">
-                    <!-- Pagination controls will be generated dynamically -->
-                </ul>
-            </nav>
         </div>
-    </main>
+    </div>
 
     <?php include 'footer.php'; ?>
 
-    <!-- View Report Details Modal -->
-    <div class="modal fade" id="viewReportModal" tabindex="-1" aria-labelledby="viewReportModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title" id="viewReportModalLabel"><i class="fas fa-exclamation-triangle me-2"></i>Report Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="reportDetailsContent">
-                        <!-- Dynamically populated -->
-                    </div>
-                </div>
-                <div class="modal-footer" id="reportActionsFooter">
-                    <!-- Actions buttons will be dynamically added here -->
-                </div>
+    <!-- ==================== VIEW MODAL ==================== -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="modalTitle"></h5>
+                <span class="close" onclick="closeModal()">x</span>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                <button id="modalResolveBtn" class="btn btn-success" style="display:none;" onclick="confirmResolve()">Resolve</button>
             </div>
         </div>
     </div>
 
-    <!-- Send Warning Modal -->
-    <div class="modal fade" id="sendWarningModal" tabindex="-1" aria-labelledby="sendWarningModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title" id="sendWarningModalLabel"><i class="fas fa-exclamation-circle me-2"></i>Send Warning Message</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p><strong>To:</strong> <span id="warningRecipient"></span></p>
-                    <div class="mb-3">
-                        <label for="warningMessage" class="form-label">Warning Message</label>
-                        <textarea class="form-control" id="warningMessage" rows="5" placeholder="Customize message or use template..."></textarea>
-                    </div>
-                    <div class="alert alert-secondary" role="alert">
-                        <small><strong>Template:</strong> "Warning: A report has been filed against your account for [reason]. Please review our terms. Further violations may result in account suspension."</small>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-warning" id="sendWarningConfirm">Send Warning</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Disable User Modal -->
-    <div class="modal fade" id="disableUserModal" tabindex="-1" aria-labelledby="disableUserModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title" id="disableUserModalLabel"><i class="fas fa-user-slash me-2"></i>Disable User Account</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p id="disableConfirmText">Are you sure you want to disable this account?</p>
-                    <div class="mb-3">
-                        <label for="disableReason" class="form-label">Reason</label>
-                        <select class="form-select" id="disableReason">
-                            <option value="multiple_reports">Multiple Reports</option>
-                            <option value="policy_violation">Policy Violation</option>
-                            <option value="fraud">Suspected Fraud</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="disableMessage" class="form-label">Notification Message</label>
-                        <textarea class="form-control" id="disableMessage" rows="3" placeholder="Message to user..."></textarea>
-                    </div>
-                    <div class="alert alert-danger" role="alert">
-                        <small><strong>Template:</strong> "Your account has been disabled due to [reason]. Contact support for appeal."</small>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="disableUserConfirm">Disable & Notify</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded - Reports module script starting');
+        /* ---------- FILTERS ---------- */
+        function applyFilters() { console.log('Filtering...'); }
+        function clearFilters() {
+            ['filterStatus','filterUrgency','filterFarmer','filterDate'].forEach(id => 
+                document.getElementById(id).value = ''
+            );
+        }
 
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', function() {
-                    document.querySelector('.sidebar').classList.toggle('collapsed');
-                });
-            }
-
-            const headerToggle = document.getElementById('headerToggle');
-            if (headerToggle) {
-                headerToggle.addEventListener('click', function() {
-                    document.querySelector('.sidebar').classList.toggle('active');
-                });
-            }
-
-            const logoutBtn = document.getElementById('logoutBtn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    if (confirm('Are you sure you want to sign out?')) {
-                        alert('You have been signed out successfully.');
-                    }
-                });
-            }
-
-            let currentReportId = '';
-            let currentReportedUserId = '';
-            let currentReportedUserType = '';
-            let currentReportedUserEmail = '';
-            let currentPage = 1;
-            const itemsPerPage = 10;
-
-            loadReports();
-
-            function loadReports(page = 1) {
-                currentPage = page;
-                const search = document.getElementById('searchReports').value;
-                const status = document.getElementById('filterStatus').value;
-                const type = document.getElementById('filterType').value;
-
-                const query = new URLSearchParams({
-                    page,
-                    limit: itemsPerPage,
-                    search,
-                    status,
-                    type
-                }).toString();
-
-                fetch(`api/reports_api.php?${query}`)
-                    .then(response => response.text().then(text => {
-                        console.log('Raw response:', text);
-                        try {
-                            return JSON.parse(text);
-                        } catch (e) {
-                            throw new Error('Invalid JSON response: ' + text);
-                        }
-                    }))
-                    .then(data => {
-                        if (data.success) {
-                            const tbody = document.getElementById('reportsTableBody');
-                            tbody.innerHTML = '';
-                            
-                            data.data.reports.forEach(report => {
-                                const row = document.createElement('tr');
-                                row.setAttribute('data-reportid', report.report_id);
-                                row.setAttribute('data-status', report.status);
-                                row.setAttribute('data-type', report.reported_user_type);
-                                row.innerHTML = `
-                                    <td>#${report.report_id}</td>
-                                    <td>${report.reported_user_name}</td>
-                                    <td><span class="badge ${report.reported_user_type === 'Farmer' ? 'badge-warning' : 'badge-blue'}">${report.reported_user_type}</span></td>
-                                    <td>${report.reporter_name}</td>
-                                    <td>${report.reason}</td>
-                                    <td>${new Date(report.created_at).toLocaleDateString('en-GB')}</td>
-                                    <td><span class="badge ${report.status === 'pending' ? 'badge-pending' : 'badge-approved'}">${report.status}</span></td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <button class="action-btn btn-edit view-report-btn" data-report-id="${report.report_id}">
-                                                <i class="fas fa-eye"></i> View Details
-                                            </button>
-                                        </div>
-                                    </td>
-                                `;
-                                tbody.appendChild(row);
-                            });
-
-                            generatePaginationControls(data.data.pagination);
-
-                            document.querySelectorAll('.view-report-btn').forEach(btn => {
-                                btn.addEventListener('click', function() {
-                                    const reportId = this.getAttribute('data-report-id');
-                                    viewReportDetails(reportId);
-                                });
-                            });
-
-                        } else {
-                            alert(data.message || 'Error loading reports');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error loading reports:', error);
-                        alert('Error loading reports: ' + error.message);
-                    });
-            }
-
-            function generatePaginationControls(pagination) {
-                const paginationControls = document.getElementById('paginationControls');
-                paginationControls.innerHTML = '';
-
-                const { current_page, total_pages } = pagination;
-
-                const prevLi = document.createElement('li');
-                prevLi.className = `page-item ${current_page === 1 ? 'disabled' : ''}`;
-                prevLi.innerHTML = `<a class="page-link" href="#" data-page="${current_page - 1}">Previous</a>`;
-                paginationControls.appendChild(prevLi);
-
-                const maxPagesToShow = 5;
-                let startPage = Math.max(1, current_page - Math.floor(maxPagesToShow / 2));
-                let endPage = Math.min(total_pages, startPage + maxPagesToShow - 1);
-
-                if (endPage - startPage + 1 < maxPagesToShow) {
-                    startPage = Math.max(1, endPage - maxPagesToShow + 1);
+        /* ---------- MODAL ---------- */
+        function openModal(id) {
+            const data = {
+                '#REP001': {
+                    buyer: 'John Doe', farmer: 'Steve Gbenga', order: '#16',
+                    issue: 'Wrong Quantity',
+                    description: 'I ordered 50kg of rice but received only 20kg. The rest was missing from the delivery. I have photos and delivery receipt as evidence.',
+                    evidence: '<a href="#" class="text-success">view_image_1.jpg</a>, <a href="#" class="text-success">receipt.pdf</a>',
+                    date: 'November 5, 2025', urgency: 'High', status: 'Pending'
+                },
+                '#REP002': {
+                    buyer: 'Jane Smith', farmer: 'Jacinta Ubah', order: '#12',
+                    issue: 'Poor Quality',
+                    description: 'Tomatoes arrived rotten and unusable...',
+                    evidence: '', date: 'November 3, 2025', urgency: 'Medium', status: 'Resolved'
                 }
-
-                if (startPage > 1) {
-                    const firstPageLi = document.createElement('li');
-                    firstPageLi.className = 'page-item';
-                    firstPageLi.innerHTML = `<a class="page-link" href="#" data-page="1">1</a>`;
-                    paginationControls.appendChild(firstPageLi);
-                    
-                    if (startPage > 2) {
-                        const dotsLi = document.createElement('li');
-                        dotsLi.className = 'page-item disabled';
-                        dotsLi.innerHTML = `<span class="page-link">...</span>`;
-                        paginationControls.appendChild(dotsLi);
-                    }
-                }
-
-                for (let i = startPage; i <= endPage; i++) {
-                    const pageLi = document.createElement('li');
-                    pageLi.className = `page-item ${i === current_page ? 'active' : ''}`;
-                    pageLi.innerHTML = `<a class="page-link" href="#" data-page="${i}">${i}</a>`;
-                    paginationControls.appendChild(pageLi);
-                }
-
-                if (endPage < total_pages) {
-                    if (endPage < total_pages - 1) {
-                        const dotsLi = document.createElement('li');
-                        dotsLi.className = 'page-item disabled';
-                        dotsLi.innerHTML = `<span class="page-link">...</span>`;
-                        paginationControls.appendChild(dotsLi);
-                    }
-                    
-                    const lastPageLi = document.createElement('li');
-                    lastPageLi.className = 'page-item';
-                    lastPageLi.innerHTML = `<a class="page-link" href="#" data-page="${total_pages}">${total_pages}</a>`;
-                    paginationControls.appendChild(lastPageLi);
-                }
-
-                const nextLi = document.createElement('li');
-                nextLi.className = `page-item ${current_page === total_pages ? 'disabled' : ''}`;
-                nextLi.innerHTML = `<a class="page-link" href="#" data-page="${current_page + 1}">Next</a>`;
-                paginationControls.appendChild(nextLi);
-            }
-
-            document.getElementById('paginationControls').addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = e.target.closest('.page-link');
-                if (target && !target.parentElement.classList.contains('disabled')) {
-                    const page = parseInt(target.getAttribute('data-page'));
-                    if (page) {
-                        loadReports(page);
-                    }
-                }
-            });
-
-            function viewReportDetails(reportId) {
-                fetch(`api/reports_api.php?action=get_report&report_id=${reportId}`)
-                    .then(response => response.text().then(text => {
-                        console.log('Raw response:', text);
-                        try {
-                            return JSON.parse(text);
-                        } catch (e) {
-                            throw new Error('Invalid JSON response: ' + text);
-                        }
-                    }))
-                    .then(data => {
-                        if (data.success) {
-                            const report = data.data;
-                            currentReportId = report.report_id;
-                            currentReportedUserId = report.reported_cbn_user_id;
-                            currentReportedUserType = report.reported_user_type;
-                            currentReportedUserEmail = report.reported_user_email;
-
-                            document.getElementById('reportDetailsContent').innerHTML = `
-                                <div class="row g-3">
-                                    <div class="col-12">
-                                        <div class="card shadow-sm">
-                                            <div class="card-header bg-light">
-                                                <h6 class="mb-0"><i class="fas fa-info-circle text-primary me-2"></i>Report Summary</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <div class="col-md-3"><strong>Report ID:</strong> #${report.report_id}</div>
-                                                    <div class="col-md-3"><strong>Type:</strong> <span class="badge ${report.reported_user_type === 'farmer' ? 'badge-warning' : 'badge-info'}">${report.reported_user_type}</span></div>
-                                                    <div class="col-md-3"><strong>Status:</strong> <span class="badge ${report.status === 'pending' ? 'badge-pending' : 'badge-approved'}">${report.status}</span></div>
-                                                    <div class="col-md-3"><strong>Date:</strong> <i class="fas fa-calendar-alt me-1"></i>${new Date(report.created_at).toLocaleDateString('en-GB')}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="card shadow-sm">
-                                            <div class="card-header ${report.reported_user_type === 'farmer' ? 'bg-warning text-dark' : 'bg-info text-white'}">
-                                                <h6 class="mb-0"><i class="fas fa-user-${report.reported_user_type === 'farmer' ? 'farmer' : 'circle'} me-2"></i>${report.reported_user_type} Information</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <p><i class="fas fa-user text-primary me-2"></i><strong>${report.reported_user_name}</strong></p>
-                                                <p><i class="fas fa-envelope text-muted me-2"></i>${report.reported_user_email}</p>
-                                                <p><i class="fas fa-phone text-muted me-2"></i>${report.reported_user_phone}</p>
-                                                <p><i class="fas fa-map-marker-alt text-muted me-2"></i>${report.reported_user_address || 'N/A'}</p>
-                                                <p><i class="fas fa-shield-alt text-${report.reported_user_status === 'Disabled' ? 'danger' : 'success'} me-2"></i><strong>Account Status:</strong> ${report.reported_user_status}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="card shadow-sm">
-                                            <div class="card-header bg-secondary text-white">
-                                                <h6 class="mb-0"><i class="fas fa-user-check me-2"></i>Reporter Information</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <p><i class="fas fa-user text-primary me-2"></i><strong>${report.reporter_name}</strong></p>
-                                                <p><i class="fas fa-envelope text-muted me-2"></i>${report.reporter_email}</p>
-                                                <p><i class="fas fa-phone text-muted me-2"></i>${report.reporter_phone}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-12">
-                                        <div class="card shadow-sm">
-                                            <div class="card-header bg-danger text-white">
-                                                <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Report Details</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <p><i class="fas fa-flag text-danger me-2"></i><strong>Reason:</strong> ${report.reason}</p>
-                                                <div class="mb-3">
-                                                    <label class="form-label fw-bold">Description:</label>
-                                                    <p class="border p-3 bg-light rounded">${report.description || 'No description provided'}</p>
-                                                </div>
-                                                <p><i class="fas fa-paperclip text-info me-2"></i><strong>Evidence:</strong> ${report.evidence || 'No evidence provided'}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            `;
-
-                            const footer = document.getElementById('reportActionsFooter');
-                            if (report.status === 'pending') {
-                                footer.innerHTML = `
-                                    <button type="button" class="btn btn-warning me-2" onclick="openWarningModal('${report.reported_user_name}', '${report.reported_user_email}')">
-                                        <i class="fas fa-exclamation-circle me-1"></i>Send Warning
-                                    </button>
-                                    <button type="button" class="btn btn-danger" onclick="openDisableModal('${report.reported_user_name}', '${report.reported_user_type}', '${report.reported_user_email}')">
-                                        <i class="fas fa-user-slash me-1"></i>Disable User
-                                    </button>
-                                    <button type="button" class="btn btn-secondary ms-2" data-bs-dismiss="modal">Close</button>
-                                `;
-                            } else {
-                                footer.innerHTML = `
-                                    <div class="text-muted small">Report is already resolved. <i class="fas fa-check-circle"></i></div>
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                `;
-                            }
-
-                            new bootstrap.Modal(document.getElementById('viewReportModal')).show();
-                        } else {
-                            alert(data.message || 'Error loading report details');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching report details:', error);
-                        alert('Error fetching report details: ' + error.message);
-                    });
-            }
-
-            window.openWarningModal = function(userName, userEmail) {
-                document.getElementById('warningRecipient').textContent = `${userName} (${userEmail})`;
-                document.getElementById('warningMessage').value = `Warning: A report has been filed against your account. Please review our terms. Further violations may result in account suspension.`;
-                new bootstrap.Modal(document.getElementById('sendWarningModal')).show();
+                // add more as needed
             };
 
-            document.getElementById('sendWarningConfirm').addEventListener('click', function() {
-                const message = document.getElementById('warningMessage').value.trim();
-                if (!message) {
-                    alert('Message is required.');
-                    return;
+            const rec = data[id] || {};
+            document.getElementById('modalTitle').textContent = `${id} - Full Details`;
+            document.getElementById('modalBody').innerHTML = `
+                <p><strong>Buyer:</strong> ${rec.buyer||''}</p>
+                <p><strong>Farmer:</strong> ${rec.farmer||''}</p>
+                <p><strong>Order #:</strong> ${rec.order||''}</p>
+                <p><strong>Issue:</strong> ${rec.issue||''}</p>
+                <p><strong>Description:</strong> ${rec.description||''}</p>
+                ${rec.evidence?`<p><strong>Evidence:</strong> ${rec.evidence}</p>`:''}
+                <p><strong>Date Reported:</strong> ${rec.date||''}</p>
+                <p><strong>Urgency:</strong> <span class="badge badge-${rec.urgency?.toLowerCase()}">${rec.urgency||''}</span></p>
+                <p><strong>Status:</strong> <span class="badge badge-${rec.status?.toLowerCase().replace(' ','-')}">${rec.status||''}</span></p>
+            `;
+
+            // Show Resolve button only when status !== Resolved
+            const resolveBtn = document.getElementById('modalResolveBtn');
+            resolveBtn.style.display = (rec.status === 'Resolved') ? 'none' : 'inline-block';
+
+            document.getElementById('reportModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('reportModal').style.display = 'none';
+        }
+
+        /* ---------- RESOLVE ---------- */
+        function resolveReport(id) {
+            Swal.fire({
+                title: 'Resolve Report?',
+                text: `Mark ${id} as resolved?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#2E7D32',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, Resolve'
+            }).then(res => {
+                if (res.isConfirmed) {
+                    const row = document.querySelector(`button[onclick="resolveReport('${id}')"]`).closest('tr');
+                    row.cells[8].innerHTML = '<span class="badge badge-resolved">Resolved</span>';
+                    updateStats();
+                    Swal.fire('Resolved!', `${id} has been marked as resolved.`, 'success');
                 }
-
-                fetch('api/reports_api.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        action: 'resolve_report', 
-                        report_id: parseInt(currentReportId), 
-                        resolution_action: 'warned',
-                        resolution_notes: message
-                    })
-                })
-                    .then(response => response.text().then(text => {
-                        console.log('Raw response:', text);
-                        try {
-                            return JSON.parse(text);
-                        } catch (e) {
-                            throw new Error('Invalid JSON response: ' + text);
-                        }
-                    }))
-                    .then(data => {
-                        if (data.success) {
-                            bootstrap.Modal.getInstance(document.getElementById('sendWarningModal')).hide();
-                            bootstrap.Modal.getInstance(document.getElementById('viewReportModal')).hide();
-                            document.getElementById('warningMessage').value = '';
-                            loadReports(currentPage);
-                            alert(`Warning sent to ${currentReportedUserEmail}. Report marked as Resolved (Warned).`);
-                        } else {
-                            alert(data.message || 'Error sending warning');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error sending warning:', error);
-                        alert('Error sending warning: ' + error.message);
-                    });
             });
+        }
 
-            window.openDisableModal = function(userName, userType, userEmail) {
-                document.getElementById('disableConfirmText').textContent = `Disable account for ${userName} (${userType})?`;
-                document.getElementById('disableMessage').value = `Your account has been disabled due to multiple reports. Contact support for appeal.`;
-                new bootstrap.Modal(document.getElementById('disableUserModal')).show();
-            };
+        function confirmResolve() {
+            const id = document.getElementById('modalTitle').textContent.split(' ')[0];
+            resolveReport(id);
+            closeModal();
+        }
 
-            document.getElementById('disableUserConfirm').addEventListener('click', function() {
-                const reason = document.getElementById('disableReason').value;
-                const message = document.getElementById('disableMessage').value.trim();
-                if (!message) {
-                    alert('Notification message is required.');
-                    return;
+        /* ---------- DELETE ---------- */
+        function deleteReport(id) {
+            Swal.fire({
+                title: 'Delete Report?',
+                text: 'This action cannot be undone!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#c62828',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, Delete'
+            }).then(res => {
+                if (res.isConfirmed) {
+                    document.querySelector(`button[onclick="deleteReport('${id}')"]`).closest('tr').remove();
+                    updateStats();
+                    Swal.fire('Deleted!', `${id} has been removed.`, 'success');
                 }
-
-                fetch('api/reports_api.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        action: 'resolve_report', 
-                        report_id: parseInt(currentReportId), 
-                        resolution_action: 'disabled',
-                        resolution_notes: `${reason}: ${message}`,
-                        reported_user_id: parseInt(currentReportedUserId),
-                        reported_user_type: currentReportedUserType
-                    })
-                })
-                    .then(response => response.text().then(text => {
-                        console.log('Raw response:', text);
-                        try {
-                            return JSON.parse(text);
-                        } catch (e) {
-                            throw new Error('Invalid JSON response: ' + text);
-                        }
-                    }))
-                    .then(data => {
-                        if (data.success) {
-                            bootstrap.Modal.getInstance(document.getElementById('disableUserModal')).hide();
-                            bootstrap.Modal.getInstance(document.getElementById('viewReportModal')).hide();
-                            document.getElementById('disableReason').value = 'other';
-                            document.getElementById('disableMessage').value = '';
-                            loadReports(currentPage);
-                            alert(`Account for ${currentReportedUserEmail} disabled. Report marked as Resolved (Disabled).`);
-                        } else {
-                            alert(data.message || 'Error disabling user');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error disabling user:', error);
-                        alert('Error disabling user: ' + error.message);
-                    });
             });
+        }
 
-            window.applyFilters = function() {
-                loadReports(1);
-            };
+        /* ---------- STATS ---------- */
+        function updateStats() {
+            const rows = document.querySelectorAll('#reportsTableBody tr');
+            const total = rows.length;
+            const resolved = [...rows].filter(r => r.cells[8].querySelector('.badge-resolved')).length;
+            const pending = [...rows].filter(r => r.cells[8].querySelector('.badge-pending')).length;
+            const high = [...rows].filter(r => r.cells[7].querySelector('.badge-high')).length;
+            document.getElementById('totalReports').textContent = total;
+            document.getElementById('resolved').textContent = resolved;
+            document.getElementById('pending').textContent = pending;
+            document.getElementById('highUrgency').textContent = high;
+        }
 
-            document.getElementById('searchReports').addEventListener('keyup', function() {
-                loadReports(1);
-            });
+        /* ---------- GLOBAL CLOSE ON BACKDROP ---------- */
+        window.onclick = e => {
+            const modal = document.getElementById('reportModal');
+            if (e.target === modal) closeModal();
+        };
 
-            document.getElementById('filterStatus').addEventListener('change', function() {
-                loadReports(1);
-            });
-
-            document.getElementById('filterType').addEventListener('change', function() {
-                loadReports(1);
-            });
-
-            window.exportReports = function() {
-                alert('Preparing reports export...');
-                window.open('api/reports_api.php?action=export', '_blank');
-            };
-
-            console.log('Reports module script fully initialized');
-        });
+        /* ---------- INITIALISE ---------- */
+        updateStats();
     </script>
 </body>
 </html>

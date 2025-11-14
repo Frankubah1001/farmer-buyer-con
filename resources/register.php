@@ -166,12 +166,10 @@
                                 <p class="text-muted">Complete your registration in a few simple steps</p>
                             </div>
 
-                            <!-- Progress Bar -->
                             <div class="progress-bar-container">
                                 <div class="progress-bar" id="progressBar"></div>
                             </div>
 
-                            <!-- Step Progress -->
                             <div class="step-progress">
                                 <div class="step active" data-step="1">
                                     <div class="step-circle">1</div>
@@ -192,10 +190,9 @@
                             </div>
 
                             <form id="registerForm" class="user" enctype="multipart/form-data">
-                                <!-- Step 1: Personal Information -->
                                 <div class="form-step active" id="step1">
                                     <div class="form-section">
-                                        <h5 class="section-title"><i class="fas fa-user me-2"></i>Personal Information</h5>
+                                        <h5 class="section-title"><i class="fas fa-user me-2 mr-2"></i>Personal Information</h5>
                                         <div class="form-group row">
                                             <div class="col-sm-6 mb-3 mb-sm-0">
                                                 <input type="text" class="form-control" name="first_name" placeholder="First Name" required>
@@ -243,15 +240,13 @@
                                         </div>
                                     </div>
                                     <div class="form-navigation">
-                                        <div></div> <!-- Empty div for spacing -->
-                                        <button type="button" class="btn-navigation" onclick="nextStep()">Next <i class="fas fa-arrow-right ms-2"></i></button>
+                                        <div></div> <button type="button" class="btn-navigation" onclick="nextStep()">Next <i class="fas fa-arrow-right ms-2"></i></button>
                                     </div>
                                 </div>
 
-                                <!-- Step 2: Farm Information -->
                                 <div class="form-step" id="step2">
                                     <div class="form-section">
-                                        <h5 class="section-title"><i class="fas fa-tractor me-2"></i>Farm Information</h5>
+                                        <h5 class="section-title"><i class="fas fa-tractor me-2 mr-2"></i>Farm Information</h5>
                                         <div class="form-group row">
                                             <div class="col-sm-6 mb-3 mb-sm-0">
                                                 <input type="text" class="form-control" name="farm_name" placeholder="Farm Name">
@@ -276,41 +271,59 @@
                                                 <input type="number" class="form-control" name="farming_experience" placeholder="Farming Experience (years)">
                                             </div>
                                         </div>
-                                    </div>
+
+                                        <div class="form-group row">
+                                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                                <select class="form-control" name="farmer_type" id="farmer_type" required>
+                                                    <option value="" disabled selected>Select Farmer Type</option>
+                                                    <option value="Arable/Crop">Arable/Crop Farmer</option>
+                                                    <option value="Horticultural">Horticultural Farmer (Fruits/Veg)</option>
+                                                    <option value="Livestock/Pastoral">Livestock/Pastoral Farmer</option>
+                                                    <option value="Aquaculture">Aquaculture Farmer</option>
+                                                    <option value="Agroforestry">Agroforestry Farmer</option>
+                                                    <option value="Mixed">Mixed Crop-Livestock Farmer</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <select class="form-control" name="primary_produce" id="primary_produce" required>
+                                                    <option value="" disabled selected>Select Primary Produce</option>
+                                                    </select>
+                                            </div>
+                                        </div>
+                                        </div>
                                     <div class="form-section">
-                                        <h5 class="section-title"><i class="fas fa-id-card me-2"></i>Identification</h5>
+                                        <h5 class="section-title"><i class="fas fa-id-card me-2 mr-2"></i>Identification</h5>
                                         <div class="form-group row">
                                             <div class="col-sm-6 mb-3 mb-sm-0">
                                                 <input type="text" class="form-control" name="cac_number" placeholder="CAC Number (if applicable)">
                                             </div>
                                             <div class="col-sm-6">
-                                                <input type="text" class="form-control" name="nin" placeholder="NIN">
+                                                <input type="text" class="form-control" name="nin" placeholder="NIN" required> 
                                             </div>
                                         </div>
                                     </div>
                                     <div class="form-navigation">
-                                        <button type="button" class="btn-navigation btn-prev" onclick="prevStep()"><i class="fas fa-arrow-left me-2"></i>Previous</button>
+                                        <button type="button" class="btn-navigation btn-prev" onclick="prevStep()"><i class="fas fa-arrow-left me-2 mr-2"></i>Previous</button>
                                         <button type="button" class="btn-navigation" onclick="nextStep()">Next <i class="fas fa-arrow-right ms-2"></i></button>
                                     </div>
                                 </div>
 
-                                <!-- Step 3: Document Upload -->
                                 <div class="form-step" id="step3">
                                     <div class="form-section">
-                                        <h5 class="section-title"><i class="fas fa-file-upload me-2"></i>Document Uploads</h5>
+                                        <h5 class="section-title"><i class="fas fa-file-upload me-2 mr-2"></i>Document Uploads</h5>
                                         <div class="form-group">
-                                            <label class="form-label">Profile Picture</label>
-                                            <input type="file" class="form-control" name="profile_picture" accept="image/jpeg,image/png">
+                                            <label class="form-label">Profile Picture <span class="text-danger">*</span></label>
+                                            <input type="file" class="form-control" name="profile_picture" accept="image/jpeg,image/png" required>
                                             <small class="file-upload-info">JPG or PNG, max 2MB</small>
                                         </div>
                                         <div class="form-group">
-                                            <label class="form-label">CAC Document</label>
-                                            <input type="file" class="form-control" name="cacDocument" accept="image/jpeg,image/png,application/pdf">
+                                            <label class="form-label">NIN Document <span class="text-danger">*</span></label>
+                                            <input type="file" class="form-control" name="national_id_doc" accept="image/jpeg,image/png,application/pdf" required>
                                             <small class="file-upload-info">JPG, PNG or PDF, max 5MB</small>
                                         </div>
                                         <div class="form-group">
-                                            <label class="form-label">NIN Document</label>
-                                            <input type="file" class="form-control" name="ninDocument" accept="image/jpeg,image/png,application/pdf">
+                                            <label class="form-label">CAC Document</label>
+                                            <input type="file" class="form-control" name="other_document" accept="image/jpeg,image/png,application/pdf">
                                             <small class="file-upload-info">JPG, PNG or PDF, max 5MB</small>
                                         </div>
                                         <div class="form-group">
@@ -320,15 +333,14 @@
                                         </div>
                                     </div>
                                     <div class="form-navigation">
-                                        <button type="button" class="btn-navigation btn-prev" onclick="prevStep()"><i class="fas fa-arrow-left me-2"></i>Previous</button>
+                                        <button type="button" class="btn-navigation btn-prev" onclick="prevStep()"><i class="fas fa-arrow-left me-2 mr-2"></i>Previous</button>
                                         <button type="button" class="btn-navigation" onclick="nextStep()">Next <i class="fas fa-arrow-right ms-2"></i></button>
                                     </div>
                                 </div>
 
-                                <!-- Step 4: Account Security -->
                                 <div class="form-step" id="step4">
                                     <div class="form-section">
-                                        <h5 class="section-title"><i class="fas fa-shield-alt me-2"></i>Account Security</h5>
+                                        <h5 class="section-title"><i class="fas fa-shield-alt me-2 mr-2"></i>Account Security</h5>
                                         <div class="form-group row">
                                             <div class="col-sm-6 mb-3 mb-sm-0">
                                                 <input type="password" class="form-control" name="password" placeholder="Password" required>
@@ -345,7 +357,7 @@
                                         </div>
                                     </div>
                                     <div class="form-navigation">
-                                        <button type="button" class="btn-navigation btn-prev" onclick="prevStep()"><i class="fas fa-arrow-left me-2"></i>Previous</button>
+                                        <button type="button" class="btn-navigation btn-prev" onclick="prevStep()"><i class="fas fa-arrow-left me-2 mr-2"></i>Previous</button>
                                         <button type="submit" class="btn-navigation" id="regBtn">
                                             <span id="submitText">Create Account</span>
                                             <span id="spinner" style="display: none;">
@@ -369,13 +381,71 @@
         </div>
     </div>
 
-    <!-- JS -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <script>
         let currentStep = 1;
         const totalSteps = 4;
+
+        // MAPPING OBJECT for Farmer Type to Primary Produce
+        const produceMapping = {
+            'Arable/Crop': [
+                "Cereals (Maize, Rice, Sorghum)",
+                "Roots/Tubers (Yam, Cassava, Potato)",
+                "Legumes (Beans, Groundnut)",
+                "Oilseeds (Soybean, Sesame)"
+            ],
+            'Horticultural': [
+                "Fruits (Citrus, Mango, Pineapple)",
+                "Vegetables (Tomato, Pepper, Okra)",
+                "Spices (Ginger, Turmeric)"
+            ],
+            'Livestock/Pastoral': [
+                "Poultry (Broilers, Layers)",
+                "Ruminants (Cattle, Sheep, Goats - Meat)",
+                "Dairy (Milk, Cheese)",
+                "Pigs"
+            ],
+            'Aquaculture': [
+                "Catfish",
+                "Tilapia",
+                "Prawns/Shrimp",
+                "Ornamentals"
+            ],
+            'Agroforestry': [
+                "Cocoa",
+                "Coffee",
+                "Cashew",
+                "Palm Oil",
+                "Rubber",
+                "Timber/Wood"
+            ],
+            'Mixed': [
+                "General Mixed Crops",
+                "General Mixed Livestock",
+                "Both"
+            ]
+        };
+
+        // Function to update the Primary Produce dropdown
+        function updateProduceDropdown(farmerType) {
+            const $produceSelect = $('#primary_produce');
+            $produceSelect.empty();
+            $produceSelect.append('<option value="" disabled selected>Select Primary Produce</option>');
+
+            if (farmerType && produceMapping[farmerType]) {
+                produceMapping[farmerType].forEach(produce => {
+                    $produceSelect.append('<option value="' + produce + '">' + produce + '</option>');
+                });
+            }
+        }
+
+        // Event listener for Farmer Type change
+        $('#farmer_type').on('change', function() {
+            const selectedType = $(this).val();
+            updateProduceDropdown(selectedType);
+        });
 
         // Update progress bar
         function updateProgressBar() {
@@ -436,7 +506,8 @@
             
             let isValid = true;
             inputs.forEach(input => {
-                if (!input.value.trim()) {
+                // Check if the input is required and empty
+                if (input.hasAttribute('required') && !input.value.trim()) {
                     isValid = false;
                     input.classList.add('is-invalid');
                 } else {
@@ -446,17 +517,35 @@
 
             // Special validation for step 4 (passwords)
             if (step === 4) {
-                const password = document.querySelector('input[name="password"]').value;
-                const repeatPassword = document.querySelector('input[name="repeat_password"]').value;
+                const password = document.querySelector('#step4 input[name="password"]').value;
+                const repeatPassword = document.querySelector('#step4 input[name="repeat_password"]').value;
                 
-                if (password !== repeatPassword) {
+                // Also check if they are required and empty, though general validation should catch this
+                if (!password || !repeatPassword) {
+                     // Passwords required and empty, handled by general loop
+                } else if (password !== repeatPassword) {
                     isValid = false;
-                    document.querySelector('input[name="repeat_password"]').classList.add('is-invalid');
+                    document.querySelector('#step4 input[name="repeat_password"]').classList.add('is-invalid');
                     alert('Passwords do not match!');
                 } else {
-                    document.querySelector('input[name="repeat_password"]').classList.remove('is-invalid');
+                    document.querySelector('#step4 input[name="repeat_password"]').classList.remove('is-invalid');
                 }
             }
+            
+            // Special validation for file uploads in Step 3
+            if (step === 3) {
+                 const requiredFiles = ['profile_picture', 'national_id_doc'];
+                 requiredFiles.forEach(name => {
+                    const fileInput = document.querySelector(`input[name="${name}"][required]`);
+                    if (fileInput && fileInput.files.length === 0) {
+                        isValid = false;
+                        fileInput.classList.add('is-invalid');
+                    } else if (fileInput) {
+                        fileInput.classList.remove('is-invalid');
+                    }
+                 });
+            }
+
 
             if (!isValid) {
                 alert('Please fill in all required fields before proceeding.');
@@ -503,8 +592,9 @@
 
                 // Validate all steps before submission
                 for (let step = 1; step <= totalSteps; step++) {
+                    // We only validate the final step on submission, relying on 'nextStep()' for previous validation.
+                    // To ensure all steps are valid before submission, you might want to force check all:
                     if (!validateStep(step)) {
-                        // Go to the first invalid step
                         currentStep = step;
                         showStep(currentStep);
                         updateStepIndicators();
@@ -540,6 +630,8 @@
                         if (response.indexOf('success') !== -1 || response.indexOf('Success') !== -1) {
                             $('#registerForm')[0].reset();
                             $('#city').html('<option value="">Select LGA</option>');
+                            // Reset produce dropdown
+                            updateProduceDropdown(null); 
                             // Reset to first step
                             currentStep = 1;
                             showStep(currentStep);
@@ -563,6 +655,8 @@
         // Initialize
         updateProgressBar();
         updateStepIndicators();
+        // Initialize the produce dropdown to be empty
+        updateProduceDropdown(null);
     </script>
 </body>
 </html>

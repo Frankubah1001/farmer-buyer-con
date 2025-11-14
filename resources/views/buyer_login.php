@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['resend_activation'])
             $reason = $user['disable_reason'] ?? 'Not specified';
             echo json_encode([
                 'status'  => 'disabled',
-                'message' => "Your account is disabled.<br><strong>Reason: <em>$reason</em></strong><br>Note: You will have to register again as a new buyer."
+                'message' => "Your account is disabled.<br><strong>Reason: <em>$reason</em></strong><br>Note: You will have to register again as a new buyer with another email and phone number."
             ]);
             exit;
         }

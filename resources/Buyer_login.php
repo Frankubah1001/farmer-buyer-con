@@ -26,7 +26,7 @@
             display:flex;align-items:center;justify-content:center;
             padding:1.5rem 1rem;
             position:relative;
-            overflow-y:auto; /* Allows scroll if needed */
+            overflow-y:auto;
         }
         body::before{
             content:'';position:absolute;top:0;left:0;right:0;bottom:0;
@@ -34,7 +34,7 @@
             opacity:.15;z-index:-1;
         }
 
-        /* --- Login Card – Height is now 100% content-driven --- */
+        /* --- Login Card --- */
         .login-card{
             background:#fff;
             border-radius:20px;
@@ -49,7 +49,7 @@
             box-shadow:0 30px 70px rgba(46,125,50,.35);
         }
 
-        /* --- Header (Compact) --- */
+        /* --- Header --- */
         .card-header{
             background:linear-gradient(rgba(46,125,50,.85),rgba(46,125,50,.95)),
                         url('https://images.unsplash.com/photo-1500595046743-cd271d694d30?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80') center/cover;
@@ -67,7 +67,7 @@
         .card-header h2{font-weight:800;font-size:1.7rem;margin-top:.6rem;}
         .card-header p{font-size:.9rem;opacity:.9;max-width:240px;margin:0 auto;}
 
-        /* --- Card Body (Reduced vertical padding) --- */
+        /* --- Card Body --- */
         .card-body{
             padding:1.8rem 1.6rem;
         }
@@ -75,41 +75,73 @@
         .form-subtitle{color:#666;text-align:center;margin-bottom:var(--spacing-lg);font-size:.92rem;}
 
         /* --- Form Fields --- */
-        .form-group{position:relative;margin-bottom:var(--spacing-md);}
+        .form-group{
+            position:relative;
+            margin-bottom:var(--spacing-md);
+        }
         .form-group label{
-            position:absolute;top:50%;left:48px;transform:translateY(-50%);
-            background:#fff;padding:0 6px;color:#888;font-size:.94rem;
-            pointer-events:none;transition:.3s;
+            position:absolute;
+            top:50%; left:48px;
+            transform:translateY(-50%);
+            background:#fff;
+            padding:0 6px;
+            color:#888;
+            font-size:.94rem;
+            pointer-events:none;
+            transition:.3s;
+            z-index:1;
         }
-        .opposites input:focus~label,
-        .form-group input:valid~label{
-            top:0;font-size:.76rem;color:var(--farm-green);font-weight:600;
+        .form-group label.active{
+            top:0;
+            font-size:.76rem;
+            color:var(--farm-green);
+            font-weight:600;
         }
+
         .form-group .form-control{
-            width:100%;height:52px;padding:0 1rem 0 48px;
-            border:2px solid #e0e0e0;border-radius:12px;
-            font-size:1rem;background:#fafafa;transition:.3s;
+            width:100%;height:52px;
+            padding:0 1rem 0 48px;
+            border:2px solid #e0e0e0;
+            border-radius:12px;
+            font-size:1rem;
+            background:#fafafa;
+            transition:.3s;
         }
         .form-group .form-control:focus{
-            border-color:var(--farm-green);box-shadow:var(--glow);background:#fff;
+            border-color:var(--farm-green);
+            box-shadow:var(--glow);
+            background:#fff;
         }
+
         .form-group i{
-            position:absolute;top:50%;left:16px;transform:translateY(-50%);
-            color:#aaa;font-size:1.2rem;transition:.3s;
+            position:absolute;
+            top:50%; left:16px;
+            transform:translateY(-50%);
+            color:#aaa;
+            font-size:1.2rem;
+            transition:.3s;
+            z-index:1;
         }
-        .form-group input:focus~i{color:var(--farm-green);}
+        .form-group input:focus~i{
+            color:var(--farm-green);
+        }
 
         /* --- Checkbox --- */
         .form-check{
-            display:flex;align-items:center;
+            display:flex;
+            align-items:center;
             margin-bottom:var(--spacing-md);
         }
         .form-check-input{
-            width:1.3em;height:1.3em;margin-right:.6rem;
-            border:2px solid #ccc;border-radius:6px;cursor:pointer;
+            width:1.3em;height:1.3em;
+            margin-right:.6rem;
+            border:2px solid #ccc;
+            border-radius:6px;
+            cursor:pointer;
         }
         .form-check-input:checked{
-            background:var(--farm-green);border-color:var(--farm-green);
+            background:var(--farm-green);
+            border-color:var(--farm-green);
         }
 
         /* --- Login Button --- */
@@ -132,11 +164,20 @@
 
         /* --- Alerts --- */
         .alert{
-            padding:.8rem 1rem;border-radius:12px;margin:0.8rem 0;font-size:.88rem;
-            opacity:0;transform:translateY(-8px);transition:.3s;
-            box-shadow:0 2px 6px rgba(0,0,0,.1);display:none;
+            padding:.8rem 1rem;
+            border-radius:12px;
+            margin:0.8rem 0;
+            font-size:.88rem;
+            opacity:0;
+            transform:translateY(-8px);
+            transition:opacity .3s, transform .3s;
+            box-shadow:0 2px 6px rgba(0,0,0,.1);
+            display:block;
         }
-        .alert.show{opacity:1;transform:translateY(0);}
+        .alert.show{
+            opacity:1;
+            transform:translateY(0);
+        }
         .alert-danger{background:#ffebee;color:#c62828;border-left:5px solid #e53935;}
         .alert-success{background:#e8f5e9;color:#2e7d32;border-left:5px solid var(--farm-green);}
 
@@ -181,12 +222,14 @@
         <p class="form-subtitle">Log in to access fresh farm produce</p>
 
         <form id="loginForm">
+            <!-- Email -->
             <div class="form-group">
                 <input type="email" class="form-control" id="email" name="email" required>
                 <i class="fas fa-envelope"></i>
                 <label for="email">Email Address</label>
             </div>
 
+            <!-- Password -->
             <div class="form-group">
                 <input type="password" class="form-control" id="password" name="password" required>
                 <i class="fas fa-lock"></i>
@@ -203,8 +246,10 @@
                 <span id="spinner" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span>
             </button>
 
+            <!-- Main Error -->
             <div id="loginError" class="alert alert-danger"></div>
 
+            <!-- Resend Activation -->
             <div id="resend-activation" style="display:none;">
                 <p class="text-center">
                     Didn't receive activation email?
@@ -228,62 +273,101 @@
 
 <script src="asset/vendor/jquery/jquery.min.js"></script>
 <script>
-function showAlert(el){
-    el.style.display='block';
-    setTimeout(()=>el.classList.add('show'),10);
+// Floating Label Logic
+function initFloatingLabels() {
+    $('.form-group').each(function() {
+        const $input = $(this).find('input');
+        const $label = $(this).find('label');
+
+        function checkValue() {
+            if ($input.val().trim() !== '') {
+                $label.addClass('active');
+            } else {
+                $label.removeClass('active');
+            }
+        }
+
+        checkValue(); // On load
+        $input.on('input focus blur', checkValue);
+    });
 }
 
-document.getElementById('loginForm').addEventListener('submit', function (e) {
+// Show Alert with Animation
+function showAlert($el, html) {
+    $el.html(html).css('display', 'block');
+    $el.removeClass('show');
+    setTimeout(() => $el.addClass('show'), 50);
+}
+
+// Login Form Submission
+$('#loginForm').on('submit', function(e) {
     e.preventDefault();
-    const btn = document.getElementById('loginBtn');
-    const txt = document.getElementById('btnText');
-    const spin = document.getElementById('spinner');
-    const err = document.getElementById('loginError');
-    const resend = document.getElementById('resend-activation');
-    const msg = document.getElementById('resend-message');
 
-    err.style.display='none'; err.classList.remove('show'); err.innerHTML='';
-    resend.style.display='none'; msg.innerHTML='';
+    const $btn = $('#loginBtn');
+    const $txt = $('#btnText');
+    const $spin = $('#spinner');
+    const $err = $('#loginError').empty();
+    const $resend = $('#resend-activation').hide();
+    const $msg = $('#resend-message').empty();
 
-    btn.disabled=true; txt.style.display='none'; spin.style.display='inline-block';
+    $btn.prop('disabled', true);
+    $txt.hide();
+    $spin.show();
 
-    fetch('views/buyer_login.php', {method:'POST', body:new FormData(this)})
-    .then(r=>r.json())
-    .then(d=>{
-        if(d.status==='success'){
-            window.location.href='buyersDashboard.php';
-        }else if(d.status==='unverified'){
-            err.innerHTML=d.message; showAlert(err);
-            resend.style.display='block';
-            document.getElementById('resend-email').value=d.email;
-        }else{
-            err.innerHTML=d.message||'Login failed.'; showAlert(err);
+    fetch('views/buyer_login.php', {
+        method: 'POST',
+        body: new FormData(this)
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.status === 'success') {
+            window.location.href = 'buyersDashboard.php';
+        } else if (d.status === 'unverified') {
+            showAlert($err, d.message);
+            $resend.show();
+            $('#resend-email').val(d.email);
+        } else {
+            showAlert($err, d.message || 'Login failed.');
         }
     })
-    .catch(()=>{ err.innerHTML='Network error.'; showAlert(err); })
-    .finally(()=>{
-        btn.disabled=false; txt.style.display='inline'; spin.style.display='none';
+    .catch(() => {
+        showAlert($err, 'Network error. Please try again.');
+    })
+    .finally(() => {
+        $btn.prop('disabled', false);
+        $txt.show();
+        $spin.hide();
     });
 });
 
-document.getElementById('resend-link').addEventListener('click', e=>{
+// Resend Activation
+$('#resend-link').on('click', function(e) {
     e.preventDefault();
-    const email=document.getElementById('resend-email').value;
-    const box=document.getElementById('resend-message');
-    fetch('views/buyer_login.php',{
-        method:'POST',
-        headers:{'Content-Type':'application/x-www-form-urlencoded'},
-        body:`resend_activation=1&email=${encodeURIComponent(email)}`
+    const email = $('#resend-email').val();
+    const $box = $('#resend-message').empty();
+
+    fetch('views/buyer_login.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `resend_activation=1&email=${encodeURIComponent(email)}`
     })
-    .then(r=>r.json())
-    .then(d=>{
-        const html = d.status==='success'
-            ? `<div class="alert alert-success show">${d.message}</div>`
-            : `<div class="alert alert-danger show">${d.message}</div>`;
-        box.innerHTML=html;
+    .then(r => r.json())
+    .then(d => {
+        const html = d.status === 'success'
+            ? `<div class="alert alert-success">${d.message}</div>`
+            : `<div class="alert alert-danger">${d.message}</div>`;
+        showAlert($box, html);
     })
-    .catch(()=>{ box.innerHTML='<div class="alert alert-danger show">Failed to send.</div>'; });
+    .catch(() => {
+        showAlert($box, '<div class="alert alert-danger">Failed to send.</div>');
+    });
+});
+
+// Initialize
+$(document).ready(function() {
+    initFloatingLabels();
 });
 </script>
+
 </body>
 </html>

@@ -330,120 +330,130 @@
     </div>
   </div>
 
-  <!-- Scripts -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script>
-    $(document).ready(function() {
-      loadLocations();
-      loadProduceListing();
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function() {
+    loadLocations();
+    loadProduceListing();
 
-      function loadLocations() {
-        $.get('get_produce_listing.php', { action: 'locations' }, function(data) {
-          let opts = '<option value="">All Locations</option>';
-          data.forEach(loc => opts += `<option value="${loc}">${loc}</option>`);
-          $('#location-select').html(opts);
-        }, 'json');
-      }
+    function loadLocations() {
+      $.get('get_produce_listing.php', { action: 'locations' }, function(data) {
+        let opts = '<option value="">All Locations</option>';
+        data.forEach(loc => opts += `<option value="${loc}">${loc}</option>`);
+        $('#location-select').html(opts);
+      }, 'json');
+    }
 
-      let debounce;
-      $('#produce-search').on('keyup', function() {
-        clearTimeout(debounce);
-        const query = $(this).val().trim();
+    let debounce;
+    $('#produce-search').on('keyup', function() {
+      clearTimeout(debounce);
+      const query = $(this).val().trim();
 
-        if (query.length > 1) {
-          debounce = setTimeout(() => {
-            $.get('get_produce_listing.php', { action: 'suggestions', query: query }, function(data) {
-              let html = '';
-              data.forEach(s => { if (s) html += `<li>${s}</li>`; });
-              $('#produce-suggestions ul').html(html);
-              $('#produce-suggestions').toggle(!!html);
-            }, 'json');
-          }, 300);
-        } else {
-          $('#produce-suggestions').hide();
-        }
-
-        clearTimeout(debounce);
-        debounce = setTimeout(loadProduceListing, 350);
-      });
-
-      $('#produce-suggestions').on('click', 'li', function() {
-        $('#produce-search').val($(this).text());
+      if (query.length > 1) {
+        debounce = setTimeout(() => {
+          $.get('get_produce_listing.php', { action: 'suggestions', query: query }, function(data) {
+            let html = '';
+            data.forEach(s => { if (s) html += `<li>${s}</li>`; });
+            $('#produce-suggestions ul').html(html);
+            $('#produce-suggestions').toggle(!!html);
+          }, 'json');
+        }, 300);
+      } else {
         $('#produce-suggestions').hide();
-        loadProduceListing();
-      });
-
-      $('#location-select').on('change', loadProduceListing);
-
-      function loadProduceListing() {
-        const search = $('#produce-search').val().trim();
-        const location = $('#location-select').val();
-
-        $.get('get_produce_listing.php', {
-          action: 'listings',
-          search: search,
-          location: location
-        }, function(response) {
-          if (!response || response.error || response.length === 0) {
-            $('#produce-grid').html('<div style="grid-column: 1/-1; text-align:center; padding:2rem; color:#666;">No produce found.</div>');
-            return;
-          }
-
-          let html = '';
-          response.forEach(p => {
-            const rating = parseFloat(p.average_rating) || 0;
-            const full = Math.floor(rating);
-            const half = rating % 1 >= 0.25 && rating % 1 < 0.75;
-            const empty = 5 - Math.ceil(rating);
-
-            let stars = '<i class="fas fa-star"></i>'.repeat(full);
-            if (half) stars += '<i class="fas fa-star-half-alt"></i>';
-            stars += '<i class="far fa-star"></i>'.repeat(empty);
-
-            const remaining = parseInt(p.remaining_quantity);
-            const badge = remaining > 0 
-              ? `<div class="badge-remaining">${remaining} left</div>` 
-              : `<div class="badge-remaining" style="background:#e74c3c;">Sold Out</div>`;
-
-            html += `
-              <div class="produce-item">
-                ${badge}
-                <img src="${p.image_path}" alt="${p.produce}" class="produce-img">
-                <div class="produce-body">
-                  <div>
-                    <h4>${p.produce}</h4>
-                    <p class="location"><i class="fas fa-map-marker-alt"></i> ${p.address}</p>
-                    <p class="quantity"><i class="fas fa-box-open"></i> ${p.uploaded_quantity} units</p>
-                    <div class="star-rating">${stars}</div>
-                  </div>
-                  <a href="#" class="btn-view" onclick="checkLogin('${p.prod_id}')">
-                    <i class="fas fa-cart-plus"></i> Order
-                  </a>
-                </div>
-              </div>`;
-          });
-          $('#produce-grid').html(html);
-        }, 'json').fail(() => {
-          $('#produce-grid').html('<div style="grid-column: 1/-1; text-align:center; padding:2rem; color:#e74c3c;">Error loading data.</div>');
-        });
       }
 
-      window.checkLogin = function(prodId) {
-        if (typeof isLoggedIn === 'undefined' || !isLoggedIn) {
-          $('#loginModal').css('display', 'flex');
-          window.currentProdId = prodId;
-        } else {
-          window.location.href = '../resources/buyer_view_product.php?prod_id=' + prodId;
-        }
-      };
-
-      window.redirectToLogin = function() {
-        $('#loginModal').hide();
-        window.location.href = '../resources/Buyer_login.php';
-      };
+      clearTimeout(debounce);
+      debounce = setTimeout(loadProduceListing, 350);
     });
 
-    var isLoggedIn = <?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>;
-  </script>
+    $('#produce-suggestions').on('click', 'li', function() {
+      $('#produce-search').val($(this).text());
+      $('#produce-suggestions').hide();
+      loadProduceListing();
+    });
+
+    $('#location-select').on('change', loadProduceListing);
+
+ function loadProduceListing() {
+  const search = $('#produce-search').val().trim();
+  const location = $('#location-select').val();
+
+  $.get('get_produce_listing.php', {
+    action: 'listings',
+    search: search,
+    location: location
+  }, function(response) {
+    if (!response || response.error || response.length === 0) {
+      $('#produce-grid').html('<div style="grid-column: 1/-1; text-align:center; padding:2rem; color:#666;">No produce found.</div>');
+      return;
+    }
+
+    let html = '';
+    response.forEach(p => {
+      const rating = parseFloat(p.average_rating) || 0;
+      const full = Math.floor(rating);
+      const half = rating % 1 >= 0.25 && rating % 1 < 0.75;
+      const empty = 5 - Math.ceil(rating);
+
+      let stars = '<i class="fas fa-star"></i>'.repeat(full);
+      if (half) stars += '<i class="fas fa-star-half-alt"></i>';
+      stars += '<i class="far fa-star"></i>'.repeat(empty);
+
+      const remaining = parseInt(p.remaining_quantity);
+      const uploadedQuantity = parseInt(p.uploaded_quantity);
+
+      // ----- UNIT HANDLING -----
+      // Get the unit from the database, default to empty string if not set
+      const unit = (p.units && p.units.trim() !== '') ? ` ${p.units}` : '';
+      
+      // For the badge: "X [units] left" (using remaining quantity)
+      const badgeText = `${remaining}${unit} left`;
+      const badge = remaining > 0 
+        ? `<div class="badge-remaining">${badgeText}</div>` 
+        : `<div class="badge-remaining" style="background:#e74c3c;">Sold Out</div>`;
+
+      // For the quantity display: "Y [units]" (using uploaded quantity)
+      const displayQuantity = `Total Quantity: ${uploadedQuantity}${unit}`;
+
+      html += `
+        <div class="produce-item">
+          ${badge}
+          <img src="${p.image_path}" alt="${p.produce}" class="produce-img">
+          <div class="produce-body">
+            <div>
+              <h4>${p.produce}</h4>
+              <p class="location"><i class="fas fa-map-marker-alt"></i> ${p.address}</p>
+              <p class="quantity"><i class="fas fa-box-open"></i> ${displayQuantity}</p>
+              <div class="star-rating">${stars}</div>
+            </div>
+            <a href="#" class="btn-view" onclick="checkLogin('${p.prod_id}')">
+              <i class="fas fa-cart-plus"></i> Order
+            </a>
+          </div>
+        </div>`;
+    });
+    $('#produce-grid').html(html);
+  }, 'json').fail(() => {
+    $('#produce-grid').html('<div style="grid-column: 1/-1; text-align:center; padding:2rem; color:#e74c3c;">Error loading data.</div>');
+  });
+}
+
+    window.checkLogin = function(prodId) {
+      if (typeof isLoggedIn === 'undefined' || !isLoggedIn) {
+        $('#loginModal').css('display', 'flex');
+        window.currentProdId = prodId;
+      } else {
+        window.location.href = '../resources/buyer_view_product.php?prod_id=' + prodId;
+      }
+    };
+
+    window.redirectToLogin = function() {
+      $('#loginModal').hide();
+      window.location.href = '../resources/Buyer_login.php';
+    };
+  });
+
+  var isLoggedIn = <?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>;
+</script>
 </body>
 </html>
