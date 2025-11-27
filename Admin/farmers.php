@@ -500,6 +500,43 @@ $cityStmt->close(); // Close statement
         </div>
     </div>
 
+    <!-- Withdrawals Modal -->
+    <div class="modal fade" id="withdrawalsModal" tabindex="-1" aria-labelledby="withdrawalsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="withdrawalsModalLabel">Withdrawal Requests - <span id="farmerNameDisplay"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="withdrawalsTableContainer">
+                        <table class="table table-hover table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Bank Name</th>
+                                    <th>Account Number</th>
+                                    <th>Account Name</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="withdrawalsTableBody">
+                                <!-- Populated via AJAX -->
+                            </tbody>
+                        </table>
+                        <div id="noWithdrawalsMessage" class="text-center text-muted py-4" style="display: none;">
+                            <i class="fas fa-inbox fa-3x mb-3"></i>
+                            <p>No withdrawal requests found for this farmer.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <style>
         .document-item {
             background-color: #f8f9fa;
@@ -607,6 +644,7 @@ $cityStmt->close(); // Close statement
                                         <button class="action-btn btn-edit edit-farmer-btn btn btn-sm btn-info text-white" data-id="${farmer.user_id}" title="Edit"><i class="fas fa-edit"></i></button>
                                         <button class="action-btn btn-approve approve-farmer-btn btn btn-sm btn-success ${farmer.cbn_approved == 1 ? 'disabled' : ''}" data-id="${farmer.user_id}" title="Approve"><i class="fas fa-check"></i></button>
                                         <button class="action-btn btn-disable disable-farmer-btn btn btn-sm btn-danger ${farmer.cbn_approved == 2 ? 'disabled' : ''}" data-id="${farmer.user_id}" title="Disable"><i class="fas fa-ban"></i></button>
+                                        <button class="action-btn btn-withdrawals withdrawals-btn btn btn-sm btn-warning" data-id="${farmer.user_id}" data-name="${farmer.first_name} ${farmer.last_name}" title="Withdrawals"><i class="fas fa-wallet"></i></button>
                                     </div>
                                 </td>
                             </tr>
@@ -823,6 +861,127 @@ $cityStmt->close(); // Close statement
                 });
         }
 
+        // Load withdrawals for a specific farmer
+        function loadWithdrawals(farmerId) {
+            fetch(`api/withdrawals_api.php?action=get_farmer_withdrawals&farmer_id=${farmerId}`, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(json => {
+                    if (json.success) {
+                        const tbody = document.getElementById('withdrawalsTableBody');
+                        const noDataMsg = document.getElementById('noWithdrawalsMessage');
+                        
+                        if (!json.data || json.data.length === 0) {
+                            tbody.innerHTML = '';
+                            noDataMsg.style.display = 'block';
+                            return;
+                        }
+                        
+                        noDataMsg.style.display = 'none';
+                        tbody.innerHTML = json.data.map(w => {
+                            const statusClass = w.status === 'Approved' ? 'success' : w.status === 'Pending' ? 'warning' : 'danger';
+                            const actionButtons = w.status === 'Pending' ? `
+                                <button class="btn btn-sm btn-success" onclick="updateWithdrawalStatus(${w.withdrawal_id}, 'Approved')" title="Approve">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="updateWithdrawalStatus(${w.withdrawal_id}, 'Rejected')" title="Reject">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            ` : `<span class="text-muted">No action</span>`;
+                            
+                            return `
+                                <tr>
+                                    <td>${w.withdrawal_id}</td>
+                                    <td>${w.request_date}</td>
+                                    <td>₦${parseFloat(w.amount).toLocaleString('en-NG', {minimumFractionDigits: 2})}</td>
+                                    <td>${w.bank_name}</td>
+                                    <td>${w.account_number}</td>
+                                    <td>${w.account_name}</td>
+                                    <td><span class="badge bg-${statusClass}">${w.status}</span></td>
+                                    <td>${actionButtons}</td>
+                                </tr>
+                            `;
+                        }).join('');
+                    } else {
+                        console.error('Error loading withdrawals:', json.error);
+                        alert('Error loading withdrawals: ' + json.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    alert('Error fetching withdrawals: ' + error.message);
+                });
+        }
+
+        // Update withdrawal status (Approve/Reject)
+        function updateWithdrawalStatus(withdrawalId, status, manualProcess = false) {
+            const action = status === 'Approved' ? 'approve' : 'reject';
+            let confirmMsg = status === 'Approved' ? 
+                'Approve this withdrawal request?' : 
+                'Reject this withdrawal request?';
+            
+            if (manualProcess) {
+                confirmMsg = 'Process this withdrawal MANUALLY (no Paystack transfer)? This will just mark it as Approved in the database.';
+            }
+            
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+            
+            const data = new FormData();
+            data.append('action', action);
+            data.append('withdrawal_id', withdrawalId);
+            if (manualProcess) {
+                data.append('manual_process', 'true');
+            }
+            
+            fetch('api/withdrawals_api.php', {
+                method: 'POST',
+                body: data
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(json => {
+                    if (json.success) {
+                        alert(json.message || `Withdrawal ${status.toLowerCase()} successfully!`);
+                        // Reload the withdrawals table
+                        const modal = document.getElementById('withdrawalsModal');
+                        const farmerId = modal.dataset.farmerId;
+                        
+                        if (farmerId) {
+                            loadWithdrawals(farmerId);
+                        } else {
+                            // Fallback if ID not found (should not happen with fix)
+                            console.warn('Could not find farmer ID to reload withdrawals');
+                        }
+                    } else {
+                        console.error('Error updating withdrawal:', json.error);
+                        if (json.can_manual_process) {
+                            if (confirm(`Paystack Error: ${json.error}\n\nDo you want to mark this as paid MANUALLY instead?`)) {
+                                updateWithdrawalStatus(withdrawalId, 'Approved', true);
+                                return;
+                            }
+                        }
+                        alert('Error updating withdrawal: ' + json.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    alert('Error updating withdrawal: ' + error.message);
+                });
+        }
+
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
             // Initial load
@@ -942,6 +1101,17 @@ $cityStmt->close(); // Close statement
                 } else if (target.classList.contains('disable-farmer-btn')) {
                     document.getElementById('disableFarmerId').value = id;
                     const modal = new bootstrap.Modal(document.getElementById('disableFarmerModal'));
+                    modal.show();
+                } else if (target.classList.contains('withdrawals-btn')) {
+                    const farmerName = target.dataset.name;
+                    document.getElementById('farmerNameDisplay').textContent = farmerName;
+                    
+                    // Store farmer ID in modal for later use
+                    const modalElement = document.getElementById('withdrawalsModal');
+                    modalElement.dataset.farmerId = id;
+                    
+                    loadWithdrawals(id);
+                    const modal = new bootstrap.Modal(modalElement);
                     modal.show();
                 }
             });

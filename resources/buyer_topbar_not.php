@@ -32,7 +32,7 @@ if (isset($_SESSION['email'])) {
                FROM orders 
                WHERE buyer_id = ? 
                AND notification_status = 'unread' 
-               AND order_status IN ('Processing Produce', 'Make Payment', 'Produce On the Way', 'Produce Delivered Confirmed', 'Cancelled') 
+               AND order_status IN ('Order Sent', 'Processing Produce For Delivery', 'Make Payment', 'Produce On The Way', 'Produce Delivered & Confirmed', 'Cancel Order') 
                ORDER BY order_date DESC 
                LIMIT ?";
 

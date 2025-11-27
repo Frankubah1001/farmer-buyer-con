@@ -98,6 +98,16 @@ include 'buyerheader.php';
     /* Badges */
     .status-verified{ background:var(--farm-green); color:#fff; }
     .status-pending{ background:#6c757d; color:#fff; }
+    .availability-badge{ 
+        padding: 4px 10px; 
+        border-radius: 8px; 
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    .availability-immediate{ background:#4CAF50; color:#fff; }
+    .availability-1-3-days{ background:#FF9800; color:#fff; }
+    .availability-3-5-days{ background:#FF5722; color:#fff; }
+    .availability-unavailable{ background:#9E9E9E; color:#fff; }
 
     /* Pagination */
     .page-link{
@@ -185,18 +195,18 @@ include 'buyerheader.php';
 
             <div class="filter-card">
                 <div class="row align-items-end">
-                    <div class="col-12 col-md-4 mb-3 mb-md-0">
+                    <div class="col-12 col-md-3 mb-3 mb-md-0">
                         <label class="form-label"><i class="fas fa-search"></i> Search Transporter</label>
                         <input type="text" class="form-control form-control" id="searchTrans"
                                placeholder="Company name or contact person...">
                     </div>
-                    <div class="col-12 col-md-4 mb-3 mb-md-0">
+                    <div class="col-12 col-md-3 mb-3 mb-md-0">
                         <label class="form-label"><i class="fas fa-map-marked-alt"></i> Filter by Location</label>
                         <select class="form-control form-select-sm" id="locationFilter">
                             <option value="">Loading Locations...</option> 
                         </select>
                     </div>
-                    <div class="col-12 col-md-4 mb-3 mb-md-0">
+                    <div class="col-12 col-md-3 mb-3 mb-md-0">
                         <label class="form-label"><i class="fas fa-shield-alt"></i> Status</label>
                         <select class="form-control form-select-sm" id="statusFilter">
                             <option value="">All Status</option>
@@ -204,11 +214,15 @@ include 'buyerheader.php';
                             <option value="pending">Pending</option>
                         </select>
                     </div>
-                    <!-- <div class="col-12 col-md-2 text-md-right">
-                        <button class="btn btn-sm btn-primary w-100" id="refreshBtn">
-                            <i class="fas fa-sync-alt"></i> Refresh
-                        </button>
-                    </div> -->
+                    <div class="col-12 col-md-3 mb-3 mb-md-0">
+                        <label class="form-label"><i class="fas fa-clock"></i> Availability</label>
+                        <select class="form-control form-select-sm" id="availabilityFilter">
+                            <option value="">All Availability</option>
+                            <option value="immediate">Immediately</option>
+                            <option value="1-3">Within 1-3 Days</option>
+                            <option value="3-5">Within 3-5 Days</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -221,13 +235,14 @@ include 'buyerheader.php';
                             <th>Contact</th>
                             <th>Vehicles & Capacity</th>
                             <th>Operating Areas</th>
+                            <th>Availability Status</th>
                             <th>Status</th>
                             <th>Est. Fee</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td colspan="8" class="text-center">Loading transporters...</td></tr>
+                        <tr><td colspan="9" class="text-center">Loading transporters...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -264,7 +279,7 @@ include 'buyerheader.php';
 
                 <hr class="my-4">
 
-                <h6 class="text-success text-center mb-4"><i class="fas fa-handshake"></i> Select Payment Option</h6>
+                <h6 class="text-success text-center mb-4"><i class="fas fa-handshake"></i> Book & Pay for Transport</h6>
                 <div class="d-flex gap-3 justify-content-center">
                     <button class="btn btn-pay-now text-white pay-btn mr-5" id="payNowBtn">
                         <i class="fas fa-credit-card"></i> Pay Now
@@ -282,7 +297,8 @@ include 'buyerheader.php';
 </div>
 
 <?php include 'buyerscript.php'; ?>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://js.paystack.co/v1/inline.js"></script>
 
 <script>
 /* ==============================================================
@@ -299,11 +315,35 @@ const LOGGED_IN_BUYER_ID = '<?php echo $_SESSION['buyer_id'] ?? 1; ?>';
 /* ==============================================================
    HELPERS
    ============================================================== */
-const formatNGN = n => (typeof n === 'number' && !isNaN(n)) ? '₦' + n.toLocaleString('en-US') : '₦0.00';
+const formatNGN = n => {
+    // Convert to number and handle various input types
+    const num = parseFloat(n);
+    
+    // Return ₦0 for invalid or zero values
+    if (isNaN(num) || num === 0) {
+        return '₦0';
+    }
+    
+    // Format with proper separators
+    return '₦' + num.toLocaleString('en-NG', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+    });
+};
 
 const getStatusBadge = isVerified => isVerified 
     ? '<span class="badge status-verified">Verified</span>'
     : '<span class="badge status-pending">Pending</span>';
+
+const getAvailabilityBadge = (availability) => {
+    const badges = {
+        'immediate': '<span class="availability-badge availability-immediate">Immediately</span>',
+        '1-3': '<span class="availability-badge availability-1-3-days">Within 1-3 Days</span>',
+        '3-5': '<span class="availability-badge availability-3-5-days">Within 3-5 Days</span>',
+        'unavailable': '<span class="availability-badge availability-unavailable">Unavailable</span>'
+    };
+    return badges[availability] || badges['immediate'];
+};
 
 /* ==============================================================
    RENDER FUNCTIONS
@@ -311,11 +351,17 @@ const getStatusBadge = isVerified => isVerified
 function renderTable(data){
     const tbody = $('#transTable tbody').empty();
     if(data.length === 0){
-        tbody.append('<tr><td colspan="8" class="text-center p-4">No transporters found matching your criteria.</td></tr>');
+        tbody.append('<tr><td colspan="9" class="text-center p-4">No available transporters found matching your criteria.</td></tr>');
         return;
     }
+    
+    console.log('Rendering transporters:', data); // Debug: Check raw data
+    
     data.forEach((t,i) => {
         const idx = (currentPage-1)*perPage + i + 1;
+        
+        console.log(`Transporter ${i+1} - Fee:`, t.price, 'Type:', typeof t.price); // Debug: Check fee value
+        
         tbody.append(`
             <tr>
                 <td>${idx}</td>
@@ -325,6 +371,7 @@ function renderTable(data){
                     <small class="text-muted">${t.email}</small></td>
                 <td>${t.vehicles}</td>
                 <td><small>${t.operating_areas}</small></td>
+                <td>${getAvailabilityBadge(t.availability)}</td>
                 <td>${getStatusBadge(t.is_verified)}</td>
                 <td><strong>${formatNGN(t.price)}</strong></td>
                 <td>
@@ -363,12 +410,9 @@ function populateLocationFilter(){
 }
 
 /* ==============================================================
-   DATA FETCH & PAGINATION (FIXED LOGIC)
+   DATA FETCH & PAGINATION
    ============================================================== */
 
-/**
- * Fetches all unique locations from the backend for the filter dropdown.
- */
 function fetchAllUniqueLocations(){
     const url = `views/book_transport.php?action=fetch_locations`;
     
@@ -377,7 +421,6 @@ function fetchAllUniqueLocations(){
         .then(d => {
             if(d.success){
                 availableLocations.clear();
-                // Add fetched locations to the Set
                 d.locations.forEach(loc => loc && loc.trim() && availableLocations.add(loc));
                 populateLocationFilter();
             } else {
@@ -391,15 +434,15 @@ function fetchAllUniqueLocations(){
         });
 }
 
-
 function fetchTransporters(page=1){
     const search   = $('#searchTrans').val().trim();
     const location = $('#locationFilter').val();
     const status   = $('#statusFilter').val();
+    const availability = $('#availabilityFilter').val();
 
-    const url = `views/book_transport.php?page=${page}&search=${encodeURIComponent(search)}&location=${encodeURIComponent(location)}&status=${encodeURIComponent(status)}`;
+    const url = `views/book_transport.php?page=${page}&search=${encodeURIComponent(search)}&location=${encodeURIComponent(location)}&status=${encodeURIComponent(status)}&availability=${encodeURIComponent(availability)}`;
 
-    $('#transTable tbody').html('<tr><td colspan="8" class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>');
+    $('#transTable tbody').html('<tr><td colspan="9" class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>');
 
     fetch(url)
         .then(r => { if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
@@ -408,39 +451,60 @@ function fetchTransporters(page=1){
                 allTransporters = d.data.transporters;
                 currentPage = d.data.currentPage;
                 totalPages  = d.data.totalPages;
-                
-                // IMPORTANT: The location filter is populated once by fetchAllUniqueLocations(), 
-                // so we no longer update availableLocations here.
 
                 renderTable(allTransporters);
                 renderPager();
             }else{
-                $('#transTable tbody').html(`<tr><td colspan="8" class="text-center p-4 text-danger">Error: ${d.error}</td></tr>`);
+                $('#transTable tbody').html(`<tr><td colspan="9" class="text-center p-4 text-danger">Error: ${d.error}</td></tr>`);
             }
         })
-        .catch(() => $('#transTable tbody').html('<tr><td colspan="8" class="text-center p-4 text-danger">Failed to load data.</td></tr>'));
+        .catch(() => $('#transTable tbody').html('<tr><td colspan="9" class="text-center p-4 text-danger">Failed to load data.</td></tr>'));
 }
 
 function fetchBuyerOrder(){
     const url = `views/book_transport.php?action=fetch_order&buyer_id=${LOGGED_IN_BUYER_ID}`;
     const box = $('#orderSummary').html('<div class="text-center p-3 text-muted"><i class="fas fa-spinner fa-spin"></i> Fetching...</div>');
 
+    console.log('Fetching buyer order for ID:', LOGGED_IN_BUYER_ID);
+
     fetch(url).then(r => r.json()).then(d => {
+        console.log('Order fetch response:', d);
+        
         if(d.success && d.order){
             buyerOrder = d.order;
+            console.log('Buyer order set:', buyerOrder);
+            
             box.html(`
                 <div class="detail-row"><i class="fas fa-receipt"></i> <span><strong>Order ID:</strong> ${buyerOrder.order_id}</span></div>
                 <div class="detail-row"><i class="fas fa-leaf"></i> <span><strong>Farmer:</strong> ${buyerOrder.farmerName}</span></div>
-                <div class="detail-row"><i class="fas fa-box-open"></i> <span><strong>Item:</strong> ${buyerOrder.product_name||'N/A'} (${buyerOrder.quantity} units @ ${formatNGN(buyerOrder.price_per_unit)})</span></div>
+                <div class="detail-row"><i class="fas fa-box-open"></i> <span><strong>Item:</strong> ${buyerOrder.product_name||'N/A'} (${buyerOrder.quantity} units @ ${formatNGN(buyerOrder.total_amount)})</span></div>
                 <div class="detail-row"><i class="fas fa-route"></i> <span><strong>Delivery City:</strong> ${buyerOrder.delivery_city}</span></div>
                 <div class="detail-row"><i class="fas fa-map-marker-alt"></i> <span><strong>Delivery Address:</strong> ${buyerOrder.delivery_address||'N/A'}</span></div>
                 <div class="detail-row"><i class="far fa-calendar-alt"></i> <span><strong>Target Date:</strong> ${buyerOrder.delivery_date}</span></div>
-                <p class="text-success mt-3 mb-0"><i class="fas fa-truck-loading"></i> <strong>Est. Transport Cost:</strong> <span id="estTransportCostModal">${formatNGN(buyerOrder.transport_cost)}</span></p>
+                <p class="text-success mt-3 mb-0" id="transportCostDisplay"><i class="fas fa-truck-loading"></i> <strong>Est. Transport Cost:</strong> <span id="estTransportCostModal">Select transporter</span></p>
             `);
         }else{
-            box.html('<div class="text-center p-3 text-warning"><i class="fas fa-exclamation-triangle"></i> No paid orders found.</div>');
+            buyerOrder = null;
+            console.error('No paid order found:', d.error || 'Unknown error');
+            
+            box.html(`
+                <div class="text-center p-3 text-warning">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                    <p class="mb-0"><strong>No Paid Orders Found</strong></p>
+                    <small>You need to complete an order payment first before booking transport.</small>
+                </div>
+            `);
         }
-    }).catch(() => box.html('<div class="text-center p-3 text-danger">Failed to fetch order.</div>'));
+    }).catch(err => {
+        buyerOrder = null;
+        console.error('Failed to fetch order:', err);
+        box.html(`
+            <div class="text-center p-3 text-danger">
+                <i class="fas fa-times-circle fa-2x mb-2"></i>
+                <p class="mb-0">Failed to fetch order details.</p>
+            </div>
+        `);
+    });
 }
 
 /* ==============================================================
@@ -461,31 +525,193 @@ $(document).on('click','.bookBtn',function(){
         <div class="detail-row"><i class="fas fa-truck-loading"></i> <span><strong>Vehicles:</strong> ${selectedTrans.vehicles}</span></div>
         <div class="detail-row"><i class="fas fa-map-marked-alt"></i> <span><strong>Location:</strong> ${selectedTrans.location}</span></div>
         <div class="detail-row"><i class="fas fa-route"></i> <span><strong>Operating Areas:</strong> ${selectedTrans.operating_areas}</span></div>
+        <div class="detail-row"><i class="fas fa-clock"></i> <span><strong>Availability:</strong> ${selectedTrans.availability_text}</span></div>
         <div class="detail-row"><i class="fas fa-shield-alt"></i> <span><strong>Status:</strong> ${getStatusBadge(selectedTrans.is_verified)}</span></div>
-        <div class="detail-row"><i class="fas fa-money-bill-wave"></i> <span><strong>Base Est. Price:</strong> ${formatNGN(selectedTrans.price)}</span></div>
+        <div class="detail-row"><i class="fas fa-money-bill-wave"></i> <span><strong>Transport Fee:</strong> ${formatNGN(selectedTrans.price)}</span></div>
         ${selectedTrans.license_number ? `<div class="detail-row"><i class="fas fa-id-card"></i> <span><strong>License:</strong> ${selectedTrans.license_number}</span></div>` : ''}
     `);
 
+    // Fetch buyer order FIRST, then show modal
     fetchBuyerOrder();
+    
+    // After a short delay to ensure order is loaded, update transport cost
+    setTimeout(() => {
+        // Update the transport cost with selected transporter's fee
+        $('#estTransportCostModal').html(formatNGN(selectedTrans.price));
+    }, 500);
 
     $('#payNowBtn, #payDeliveryBtn')
         .data('transporter-id', selectedTrans.id)
         .data('price', selectedTrans.price);
 
-    $('#transModal').modal('show');
+    // Show modal using Bootstrap 5 Modal API
+    var modalEl = document.getElementById('transModal');
+    var modal = new bootstrap.Modal(modalEl);
+    modal.show();
 });
 
+// PROPER Modal close button handler
+$('#transModal .btn-close, #transModal .btn-secondary').on('click', function() {
+    var modalEl = document.getElementById('transModal');
+    var modal = bootstrap.Modal.getInstance(modalEl);
+    if (modal) {
+        modal.hide();
+    }
+});
+
+// PAYSTACK PAYMENT - Pay Now
 $('#payNowBtn').on('click',function(){
     const transId = $(this).data('transporter-id');
     const price   = $(this).data('price');
-    const orderId = buyerOrder ? buyerOrder.order_id : 'N/A';
-    alert(`Pay Now – Order ${orderId}, Transporter ${transId}, Amount ${formatNGN(price)}`);
+    
+    // More robust order check
+    if (!buyerOrder || !buyerOrder.order_id) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'No Paid Order Found',
+            text: 'You must have a paid order before booking transport. Please complete an order payment first.',
+            confirmButtonColor: '#2E8B57'
+        });
+        return;
+    }
+    
+    const orderId = buyerOrder.order_id;
+    const buyerEmail = '<?php echo $_SESSION['buyer_email'] ?? 'buyer@example.com'; ?>';
+
+    const handler = PaystackPop.setup({
+        key: 'pk_test_820ef67599b8a00fd2dbdde80e56e94fda5ed79f',
+        email: buyerEmail,
+        amount: price * 100,
+        currency: 'NGN',
+        ref: 'TRANS-' + orderId + '-' + Date.now(),
+        callback: function(response) {
+            // Show processing state
+            Swal.fire({
+                title: 'Processing Payment...',
+                text: 'Please wait while we verify your payment',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Process payment
+            $.post('views/process_transport_payment.php', {
+                order_id: orderId,
+                transporter_id: transId,
+                reference: response.reference,
+                amount: price
+            }, function(res) {
+                Swal.close();
+                if (res.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Payment Successful!',
+                        text: 'Your transport has been booked successfully!',
+                        confirmButtonColor: '#2E8B57'
+                    }).then(() => {
+                        // Reload the entire page to show updated data
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Payment Failed',
+                        text: res.message || 'Verification failed. Please try again.',
+                        confirmButtonColor: '#d33'
+                    });
+                }
+            }, 'json').fail(() => {
+                Swal.close();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Connection Error',
+                    text: 'Could not connect to server. Please check your internet connection.',
+                    confirmButtonColor: '#d33'
+                });
+            });
+        },
+        onClose: function() {
+            console.log('Payment window closed');
+        }
+    });
+    handler.openIframe();
 });
+
+// Pay on Delivery
 $('#payDeliveryBtn').on('click',function(){
     const transId = $(this).data('transporter-id');
     const price   = $(this).data('price');
-    const orderId = buyerOrder ? buyerOrder.order_id : 'N/A';
-    alert(`Pay on Delivery – Order ${orderId}, Transporter ${transId}, Amount ${formatNGN(price)}`);
+    
+    // More robust order check
+    if (!buyerOrder || !buyerOrder.order_id) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'No Paid Order Found',
+            text: 'You must have a paid order before booking transport. Please complete an order payment first.',
+            confirmButtonColor: '#2E8B57'
+        });
+        return;
+    }
+    
+    const orderId = buyerOrder.order_id;
+
+    Swal.fire({
+        title: 'Confirm Booking',
+        text: `Book transport with payment on delivery (${formatNGN(price)})?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#2E8B57',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, Book'
+    }).then(result => {
+        if (result.isConfirmed) {
+            // Show processing
+            Swal.fire({
+                title: 'Processing Booking...',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            $.post('views/book_transport_delivery.php', {
+                order_id: orderId,
+                transporter_id: transId,
+                payment_method: 'delivery'
+            }, function(res) {
+                Swal.close();
+                if (res.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Booking Confirmed!',
+                        text: 'Transport booked successfully. Pay on delivery.',
+                        confirmButtonColor: '#2E8B57'
+                    }).then(() => {
+                        // Reload the entire page to show updated data
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Booking Failed',
+                        text: res.message || 'Could not complete booking',
+                        confirmButtonColor: '#d33'
+                    });
+                }
+            }, 'json').fail(() => {
+                Swal.close();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Connection Error',
+                    text: 'Could not connect to server',
+                    confirmButtonColor: '#d33'
+                });
+            });
+        }
+    });
 });
 
 /* ==============================================================
@@ -494,7 +720,7 @@ $('#payDeliveryBtn').on('click',function(){
 $('#searchTrans').on('input',   () => { currentPage=1; fetchTransporters(1); });
 $('#locationFilter').on('change',() => { currentPage=1; fetchTransporters(1); });
 $('#statusFilter').on('change', () => { currentPage=1; fetchTransporters(1); });
-$('#refreshBtn').on('click', e => { e.preventDefault(); currentPage=1; fetchTransporters(1); });
+$('#availabilityFilter').on('change', () => { currentPage=1; fetchTransporters(1); });
 
 $(document).on('click','#transPager .page-link',function(e){
     e.preventDefault();
@@ -504,7 +730,6 @@ $(document).on('click','#transPager .page-link',function(e){
     }
 });
 
-// **FIXED INITIAL CALL:** Fetch locations first, then fetch transporters.
 $(document).ready(() => {
     fetchAllUniqueLocations(); 
     fetchTransporters(1);

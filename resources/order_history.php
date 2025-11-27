@@ -264,124 +264,395 @@ ease-in-out;
         border-radius: 10px;
     }
 </style>
+<style>
+    /* === FARM-FRESH COLOR PALETTE & ICON STYLING === */
+
+    /* Colors - Refined for better pop and contrast */
+    :root {
+        --primary-green: #2E7D32;    /* Deeper Green - Primary Action/Header */
+        --secondary-green: #689F38;  /* Medium Green - Accent/Buttons */
+        --accent-yellow: #FFB300;    /* Richer Gold/Amber - For Ratings */
+        --background-light: #F4FFF9; /* Very light, fresh background */
+        --text-dark: #212121;        /* Near Black for high text contrast */
+        --shadow-color: rgba(46, 139, 87, 0.15); /* Slightly stronger shadow */
+        --icon-blue: #1976D2;        /* For contact/info icons */
+        --icon-red: #D32F2F;         /* For error/warning states */
+    }
+
+    /* General Styling */
+    .container-fluid {
+        background-color: var(--background-light);
+        padding-top: 20px;
+        padding-bottom: 20px;
+        min-height: 100vh;
+    }
+    .page-title {
+        color: var(--primary-green);
+        font-weight: 800;
+        margin-bottom: 2rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 4px solid var(--secondary-green);
+        display: inline-block;
+        font-size: 2.5rem; /* Bigger title */
+    }
+
+    /* Filter Card */
+    .filter-card {
+        background-color: #fff;
+        border-radius: 15px;
+        border: 1px solid #C8E6C9; /* Lighter border */
+        box-shadow: 0 6px 20px var(--shadow-color);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .form-label {
+        color: var(--primary-green);
+        font-weight: 600;
+        font-size: 0.95rem; /* Slightly larger label */
+        display: block; 
+        margin-bottom: 0.3rem;
+    }
+    .form-control-sm {
+        border-radius: 10px;
+        border-color: #A5D6A7;
+        color: var(--text-dark);
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-control-sm:focus {
+        border-color: var(--secondary-green);
+        box-shadow: 0 0 0 0.25rem rgba(104, 159, 56, 0.3); 
+    }
+
+    /* Table Styling (Desktop) */
+    .table-responsive {
+        background-color: #fff;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px var(--shadow-color);
+    }
+    .table thead th {
+        background-color: var(--primary-green);
+        color: #fff;
+        font-weight: 700;
+        border: none;
+        text-transform: uppercase;
+        font-size: 0.85rem; 
+        letter-spacing: 0.8px;
+    }
+    .table tbody tr:nth-of-type(even) {
+        background-color: #F9FFF5; 
+    }
+    .table tbody tr:nth-of-type(odd) {
+        background-color: #fff; 
+    }
+    .table td {
+        vertical-align: middle;
+        color: var(--text-dark);
+        font-size: 0.9rem;
+    }
+    
+    /* Rating Stars */
+    .star-rating {
+        color: var(--accent-yellow);
+        font-size: 0.9rem;
+    }
+
+    /* View Produce Button - More vibrant action */
+    .view-produce-btn {
+        background-color: var(--secondary-green);
+        border-color: var(--secondary-green);
+        font-weight: 600;
+        border-radius: 10px; 
+        padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    }
+    .view-produce-btn:hover {
+        background-color: #558B2F; 
+        border-color: #558B2F;
+        transform: translateY(-1px);
+        box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+    }
+
+    /* Pagination */
+    .pagination .page-item.active .page-link {
+        background-color: var(--primary-green);
+        border-color: var(--primary-green);
+        color: #fff;
+    }
+    .pagination .page-link {
+        color: var(--primary-green);
+        border-radius: 8px;
+        margin: 0 4px;
+        transition: all 0.3s;
+    }
+    .pagination .page-link:hover {
+        background-color: #E8F5E9;
+        color: var(--text-dark);
+    }
+
+    /* === MOBILE RESPONSIVE CARDS - MORE COLORFUL === */
+    .farmer-card {
+        background-color: #fff;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px var(--shadow-color);
+        margin-bottom: 15px;
+        padding: 1rem;
+        border-left: 5px solid var(--secondary-green); /* Added accent border */
+        display: none; 
+    }
+    .card-header-icon {
+        color: var(--secondary-green);
+        font-size: 1.5rem;
+    }
+    .card-title-farmer {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+    .card-detail-label {
+        font-size: 0.75rem; 
+        color: #555;
+        font-weight: 500;
+        margin-bottom: 2px;
+    }
+    .card-detail-value {
+        font-weight: 700; 
+        color: var(--text-dark);
+        font-size: 0.9rem;
+        line-height: 1.3;
+    }
+    .card-rating-section {
+        border-top: 1px dashed #ddd;
+        padding-top: 10px;
+        margin-top: 10px;
+    }
+    .table-container-desktop {
+        display: block;
+    }
+    .card-container-mobile {
+        display: none;
+    }
+
+    @media (max-width: 767.98px) {
+        .page-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+        .table-container-desktop {
+            display: none; 
+        }
+        .card-container-mobile {
+            display: block; 
+        }
+        .farmer-card {
+            display: block;
+        }
+        .filter-card {
+            padding: 1rem;
+        }
+    }
+
+    /* === MODAL STYLING - POP & STRUCTURED === */
+    #farmerDetailsModal .modal-content {
+        border-radius: 20px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.2); 
+        border: 3px solid var(--secondary-green);
+    }
+    #farmerDetailsModal .modal-header {
+        background-color: var(--primary-green);
+        color: #fff;
+        border-radius: 17px 17px 0 0; 
+        border-bottom: none;
+        padding: 1.5rem 2rem;
+    }
+    #farmerDetailsModal .modal-title {
+        font-weight: 800;
+        font-size: 1.6rem;
+        letter-spacing: 0.5px;
+    }
+    #farmerDetailsModal .close {
+        color: #fff;
+        opacity: 0.9;
+        font-size: 1.8rem;
+    }
+    #farmerDetailsModal .modal-body {
+        padding: 2rem;
+        background-color: var(--background-light);
+    }
+    /* Modal Section Headings - Very distinct */
+    #farmerDetailsModal .modal-body h4, #farmerDetailsModal .modal-body h5 {
+        color: var(--primary-green);
+        font-weight: 700;
+        margin-top: 1.8rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.3rem;
+        border-bottom: 3px solid var(--accent-yellow); 
+    }
+    .form-control-plaintext {
+        padding: 0.375rem 0.75rem !important;
+        font-size: 0.95rem;
+        background-color: #fff; 
+        border-radius: 6px;
+        border: 1px solid #eee;
+    }
+    /* Produce/Rating Card Styling in Modal - Use clear division */
+    .modal-body .card {
+        border: 1px solid #E0F2F1; 
+        border-left: 6px solid var(--secondary-green); 
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        transition: transform 0.2s;
+    }
+    .modal-body .card:hover {
+        transform: translateY(-2px);
+    }
+    .modal-body .card label {
+        font-weight: 600;
+        color: var(--primary-green);
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    /* Modal Footer */
+    #farmerDetailsModal .modal-footer {
+        border-top: 1px solid #eee;
+        padding: 1rem 2rem;
+        background-color: #fff;
+        border-radius: 0 0 17px 17px;
+    }
+    #farmerDetailsModal .modal-footer .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        border-radius: 10px;
+        padding: 0.5rem 1.2rem;
+        font-weight: 600;
+    }
+
+</style>
 
 <div id="content-wrapper" class="d-flex flex-column">
     <div id="content">
         <?php include 'buyertopbar.php'; ?>
 
-        <div class="container-fluid">
-            <div class="container mt-4" style="max-width: 1400px; margin: auto; padding: 1.5rem;">
-                <h2><i class="fas fa-history fa-fw mr-2"></i>Order History</h2>
+        <div class="container-fluid py-4">
+            <div class="container" style="max-width: 1400px;">
+                <h2><i class="fas fa-history me-2"></i> Order History</h2>
 
-                <div class="filter-card shadow-sm">
-                    <div class="row">
-                        <div class="col-12 col-md-4 mb-3 mb-md-0">
-                            <label for="statusFilterOrders" class="form-label"><i class="fas fa-filter mr-1"></i> Filter by Status:</label>
-                            <select class="form-control form-control-sm" id="statusFilterOrders">
-                                <option value="">All Statuses</option>
-                                <option value="Order Sent">Order Sent</option>
-                                <option value="Processing Produce">Processing Produce</option>
-                                <option value="Make Payment">Make Payment</option>
-                                <option value="Produce Delivered Confirmed">Delivered Confirmed</option>
-                                <option value="Produce on the way">On the Way</option>
-                            </select>
-                        </div>
-                        <div class="col-12 col-md-4 mb-3 mb-md-0">
-                            <label for="dateFilterOrders" class="form-label"><i class="far fa-calendar-alt mr-1"></i> Filter by Date:</label>
-                            <input type="date" class="form-control form-control-sm" id="dateFilterOrders">
-                        </div>
-                         <div class="col-12 col-md-4 d-flex align-items-end">
+                <!-- Filters -->
+                <div class="card shadow-sm border-0 mb-4" style="border-radius: 18px;">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-5">
+                                <label class="form-label text-success fw-600"><i class="fas fa-filter"></i> Filter by Status</label>
+                                <select class="form-control form-control-sm" id="statusFilterOrders">
+                                    <option value="">All Statuses</option>
+                                    <option value="Make Payment">Make Payment</option>
+                                    <option value="Processing Produce For Delivery">Processing Produce For Delivery</option>
+                                    <option value="Produce On The Way">Produce On The Way</option>
+                                    <option value="Produce Delivered & Confirmed">Produce Delivered & Confirmed</option>
+                                    <option value="Cancel Order">Cancel Order</option>
+                                </select>
                             </div>
+                            <div class="col-md-5">
+                                <label class="form-label text-success fw-600"><i class="far fa-calendar-alt"></i> Filter by Date</label>
+                                <input type="date" class="form-control form-control-sm" id="dateFilterOrders">
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <!-- <button class="btn btn-success btn-sm w-100" id="clearFilters">
+                                    <i class="fas fa-times"></i> Clear
+                                </button> -->
+                            </div>
+                        </div>
                     </div>
                 </div>
 
+                <!-- Orders Table -->
                 <div class="table-responsive">
-                    <table class="table table-bordered table-striped" id="ordersTable">
-                        <thead>
+                    <table class="table table-striped table-hover align-middle" id="ordersTable">
+                        <thead class="table-success text-white">
                             <tr>
                                 <th>Order ID</th>
-                                <th>Order Date</th>
-                                <th>Total Amount</th>
-                                <th><i class="fas fa-info-circle"></i> Status</th>
-                                <th><i class="fas fa-credit-card"></i> Payment</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Payment</th>
                                 <th>Farmer</th>
-                                <th>Items Overview</th>
+                                <th>Items</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            </tbody>
+                        <tbody></tbody>
                     </table>
                 </div>
 
-                <nav aria-label="Page navigation" class="mt-4">
+                <!-- Pagination -->
+                <nav class="mt-4">
                     <ul class="pagination justify-content-center" id="pagination"></ul>
                 </nav>
             </div>
         </div>
     </div>
-    
+
+    <!-- Order Details Modal -->
     <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-clipboard-list mr-2"></i>Order Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header bg-success text-white" style="border-radius: 20px 20px 0 0;">
+                    <h5 class="modal-title"><i class="fas fa-clipboard-list me-2"></i> Order Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="container-fluid">
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label"><i class="fas fa-barcode"></i> Order ID</label>
-                                <input type="text" class="form-control" id="detailOrderId" readonly>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label"><i class="far fa-calendar-alt"></i> Order Date</label>
-                                <input type="text" class="form-control" id="detailOrderDate" readonly>
-                            </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Order ID</label>
+                            <input type="text" class="form-control" id="detailOrderId" readonly>
                         </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label"><i class="fas fa-chart-line"></i> Status</label>
-                                <input type="text" class="form-control" id="detailStatus" readonly>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label"><i class="fas fa-money-bill-wave"></i> Total Amount</label>
-                                <input type="text" class="form-control" id="detailTotalAmount" readonly>
-                            </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Date</label>
+                            <input type="text" class="form-control" id="detailOrderDate" readonly>
                         </div>
-
-                        <div class="mb-3">
-                            <label class="form-label"><i class="fas fa-tractor"></i> Farmer</label>
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            <input type="text" class="form-control" id="detailStatus" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Total Amount</label>
+                            <input type="text" class="form-control fw-bold text-success" id="detailTotalAmount" readonly>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Farmer</label>
                             <input type="text" class="form-control" id="detailFarmer" readonly>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label"><i class="fas fa-balance-scale"></i> Quantity (Units/Bags)</label>
-                            <input type="number" class="form-control" id="detailQuantity" name="quantity" min="1" readonly>
+                        <div class="col-md-4">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="detailQuantity" min="1">
                         </div>
-
-                        <div class="mb-3">
-                            <label class="form-label"><i class="fas fa-map-marker-alt"></i> Delivery Address</label>
-                            <textarea class="form-control" id="detailDeliveryAddress" name="delivery_address" rows="2" readonly></textarea>
+                        <div class="col-md-4">
+                            <label class="form-label">Delivery Date</label>
+                            <input type="date" class="form-control" id="detailDeliveryDate">
                         </div>
-
-                        <div class="mb-3">
-                            <label class="form-label"><i class="fas fa-truck-moving"></i> Delivery Date</label>
-                            <input type="date" class="form-control" id="detailDeliveryDate" name="delivery_date" readonly>
+                        <div class="col-md-4">
+                            <label class="form-label">Payment Status</label>
+                            <input type="text" class="form-control" id="detailPaymentStatus" readonly>
                         </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Order Items</label>
+                        <div class="col-12">
+                            <label class="form-label">Delivery Address</label>
+                            <textarea class="form-control" id="detailDeliveryAddress" rows="2"></textarea>
+                        </div>
+                        <div class="col-12 mt-4">
+                            <h6>Order Items</h6>
                             <div class="table-responsive">
-                                <table class="table table-bordered table-striped" id="detailItemsTable">
-                                    <thead>
+                                <table class="table table-sm table-bordered" id="detailItemsTable">
+                                    <thead class="table-light">
                                         <tr>
                                             <th>Item</th>
                                             <th>Price</th>
-                                            <th>Quantity</th>
-                                            <th>Payment Status</th>
+                                            <th>Qty</th>
+                                            <th>Subtotal</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -392,479 +663,285 @@ ease-in-out;
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="saveChangesBtn" style="display:none;"><i class="fas fa-save mr-2"></i>Save Changes</button>
+                    <button type="button" class="btn btn-success" id="saveChangesBtn" style="display:none;">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+
     <?php include 'buyerfooter.php'; ?>
 </div>
 
-<?php include 'buyerscript.php'; ?>
+<!-- Scripts -->
+ <?php include 'buyerscript.php'; ?>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://js.paystack.co/v1/inline.js"></script>
 
 <script>
-   $(document).ready(function() {
-    let orderDetailsModal = null;
-    let currentStatus = '';
-    let currentDate = '';
-    let currentPage = 1;
-    let editableOrderId = null; 
-
-    // --- NEW HELPER FUNCTIONS FOR FORMATTING ---
+$(document).ready(function() {
+    const modalEl = document.getElementById('orderDetailsModal');
+    const modal = new bootstrap.Modal(modalEl);
+    let currentPage = 1, currentStatus = '', currentDate = '';
+    let editableOrderId = null;
 
     function formatCurrency(amount) {
-        const number = parseFloat(amount);
-        if (isNaN(number)) return 'N/A';
-        return number.toLocaleString('en-NG', {
-            style: 'currency',
-            currency: 'NGN',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 2
-        }).replace('NGN', '₦');
+        const num = parseFloat(amount);
+        return isNaN(num) ? '₦0' : '₦' + num.toLocaleString('en-NG');
     }
-    
-    // Initialize modals
-    if (document.getElementById('orderDetailsModal')) {
-        orderDetailsModal = new bootstrap.Modal(document.getElementById('orderDetailsModal'), {
-            backdrop: 'static', 
-            keyboard: true
-        });
-    }
-
-    // Manual close button handler
-    $('#orderDetailsModal .btn-close, #orderDetailsModal .btn-secondary').on('click', function() {
-        if (orderDetailsModal) {
-            setModalFieldsEditable(false);
-            orderDetailsModal.hide();
-        }
-    });
-
-    // --- Core Load & Render Functions ---
 
     function loadOrders(page = 1, status = '', date = '') {
-        currentPage = page;
-        currentStatus = status;
-        currentDate = date;
-        
-        $('#ordersTable tbody').html('<tr><td colspan="8" class="text-center p-4"><i class="fas fa-spinner fa-spin mr-2"></i> Loading order history...</td></tr>');
+        currentPage = page; currentStatus = status; currentDate = date;
+        $('#ordersTable tbody').html('<tr><td colspan="8" class="text-center py-5"><i class="fas fa-spinner fa-spin fa-2x"></i></td></tr>');
 
-        $.ajax({
-            url: 'views/fetch_orders.php',
-            type: 'GET',
-            dataType: 'json',
-            data: {
-                page: page,
-                order_status: status,
-                date: date
-            },
-            success: function(response) {
-                if (response.error) {
-                    showError(response.error);
-                    return;
-                }
-                renderTable(response.orders);
-                renderPagination(response.pagination);
-            },
-            error: function(xhr, status, error) {
-                showError('Error loading orders: ' + error);
-                console.error(xhr.responseText);
+        $.get('views/fetch_orders.php', { page, order_status: status, date }, function(res) {
+            if (res.error) {
+                $('#ordersTable tbody').html(`<tr><td colspan="8" class="text-center text-danger py-4">${res.error}</td></tr>`);
+                return;
             }
-        });
+            renderTable(res.orders || []);
+            renderPagination(res.pagination || {});
+        }, 'json');
     }
 
     function renderTable(orders) {
-        const $tbody = $('#ordersTable tbody');
-        $tbody.empty();
-
+        const tbody = $('#ordersTable tbody');
+        tbody.empty();
         if (orders.length === 0) {
-            $tbody.html('<tr><td colspan="8" class="text-center p-4"><i class="fas fa-search-minus mr-2"></i> No orders found.</td></tr>');
+            tbody.html('<tr><td colspan="8" class="text-center py-4 text-muted">No orders found</td></tr>');
             return;
         }
 
         orders.forEach(order => {
-            const orderDataString = JSON.stringify(order).replace(/'/g, "&#39;"); 
-            const isPayable = order.order_status === 'Make Payment' && order.payment_status !== 'Paid';
-            const isEditable = order.order_status === 'Order Sent'; // Only allow edit/delete if 'Order Sent'
-            
-            const payBtnClass = isPayable ? 'btn-warning payBtn' : 'btn-secondary payBtn paid';
-            const payBtnIcon = order.payment_status === 'Paid' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-money-bill-wave"></i>';
-            const payBtnText = order.payment_status === 'Paid' ? 'Paid' : 'Pay';
-            const payBtnDisabled = !isPayable ? 'disabled' : '';
-            
-            const formattedTotalAmount = formatCurrency(order.total_amount_raw);
+            const data = JSON.stringify(order).replace(/'/g, "&#39;");
+            const canPay = order.order_status === 'Make Payment' && order.payment_status !== 'Paid';
+            const canEdit = order.order_status === 'Order Sent';
 
-            const itemsSummary = order.items.map(item => {
-                const quantity = item.quantity ? `${item.quantity} Unit` : 'N/A';
-                return `${item.name} (${quantity})`;
-            }).join(', ');
-            
-            // ACTION BUTTONS WITH ICONS
-            const actionButtons = `
-                <div class="d-flex justify-content-start align-items-center">
-                    <button class="btn btn-sm view-details"
-                            title="View Details"
-                            data-order-data='${orderDataString}'>
+            const payBtn = canPay
+                ? `<button class="btn btn-sm btn-warning payBtn shadow-sm" data-order-id="${order.numeric_order_id}" data-order-amount="${order.total_amount_raw}" data-order-email="${order.buyer_email}">
+                     Pay Now
+                   </button>`
+                : `<button class="btn btn-sm btn-secondary" disabled>Paid</button>`;
+
+            const items = order.items.map(i => `${i.name} (${i.quantity} Unit${i.quantity>1?'s':''})`).join(', ');
+
+            const actions = `
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-primary view-details" data-order-data='${data}' title="View">
                         <i class="fas fa-eye"></i>
                     </button>
-                    ${isEditable ? `
-                        <button class="edit-order-btn action-icon" title="Edit Order" data-order-data='${orderDataString}'>
+                    ${canEdit ? `
+                        <button class="btn btn-sm btn-outline-warning edit-order-btn" data-order-data='${data}' title="Edit">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="delete-order-btn action-icon" title="Delete Order" data-order-id="${order.numeric_order_id}">
+                        <button class="btn btn-sm btn-outline-danger delete-order-btn" data-order-id="${order.numeric_order_id}" title="Delete">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     ` : ''}
-                </div>
-            `;
-            
-            $tbody.append(`
+                </div>`;
+
+            tbody.append(`
                 <tr>
-                    <td>${order.order_id}</td>
+                    <td><strong>${order.order_id}</strong></td>
                     <td>${order.created_at}</td>
-                    <td class="font-weight-bold text-success">${formattedTotalAmount}</td>
-                    <td><span class="badge ${getStatusBadgeClass(order.order_status)}">${order.order_status}</span></td>
-                    <td>
-                        <button class="btn ${payBtnClass}" ${payBtnDisabled}
-                            data-order-id="${order.numeric_order_id}"
-                            data-order-amount="${order.total_amount_raw}"
-                            data-order-email="${order.buyer_email}">
-                            ${payBtnIcon} ${payBtnText}
-                        </button>
-                    </td>
-                    <td><i class="fas fa-tractor text-warning mr-1"></i>${order.farmer}</td>
-                    <td>${itemsSummary}</td>
-                    <td>${actionButtons}</td>
+                    <td class="fw-bold text-success">${formatCurrency(order.total_amount_raw)}</td>
+                    <td><span class="badge ${getBadgeClass(order.order_status)}">${order.order_status}</span></td>
+                    <td>${payBtn}</td>
+                    <td><i class="fas fa-tractor text-warning me-1"></i>${order.farmer}</td>
+                    <td>${items}</td>
+                    <td>${actions}</td>
                 </tr>
             `);
         });
     }
-    
-    // Status badge class
-    function getStatusBadgeClass(status) {
-        switch (status.toLowerCase()) {
-            case 'order sent':
-                return 'badge-order-sent';
-            case 'processing produce':
-                return 'badge-processing-produce';
-            case 'make payment':
-                return 'badge-make-payment';
-            case 'produce on the way':
-                return 'badge-secondary'; 
-            case 'produce delivered confirmed':
-                return 'badge-delivered-confirmed';
-            default:
-                return 'badge-secondary';
-        }
+
+    function getBadgeClass(status) {
+        const map = {
+            'Make Payment': 'bg-warning text-dark',
+            'Processing Produce For Delivery': 'bg-info text-white',
+            'Produce On The Way': 'bg-primary text-white',
+            'Produce Delivered & Confirmed': 'bg-success text-white',
+            'Cancel Order': 'bg-danger text-white'
+        };
+        return map[status] || 'bg-secondary text-white';
     }
-    
-    function showError(message) {
-        $('#ordersTable tbody').html(`<tr><td colspan="8" class="text-center text-danger p-4"><i class="fas fa-times-circle mr-2"></i> ${message}</td></tr>`);
-        $('#pagination').empty();
-    }
-    
-    // Pagination logic (kept unchanged for brevity)
-    function renderPagination(pagination) {
-        const $pagination = $('#pagination');
-        $pagination.empty();
-        const lastPage = pagination.last_page;
 
-        if (lastPage <= 1) return;
+    function renderPagination(p) {
+        const ul = $('#pagination');
+        ul.empty();
+        if (!p || p.last_page <= 1) return;
 
-        $pagination.append(`
-            <li class="page-item ${pagination.current_page === 1 ? 'disabled' : ''}">
-                <a class="page-link" href="#" data-page="${pagination.current_page - 1}">
-                    &laquo;
-                </a>
-            </li>
-        `);
+        const addPage = (num, text = num, disabled = false) => {
+            ul.append(`<li class="page-item ${disabled?'disabled':''}"><a class="page-link" href="#" data-page="${num}">${text}</a></li>`);
+        };
 
-        let startPage = Math.max(1, pagination.current_page - 2);
-        let endPage = Math.min(lastPage, pagination.current_page + 2);
+        addPage(1, 'First');
+        if (p.current_page > 1) addPage(p.current_page - 1, 'Previous');
 
-        if (endPage - startPage < 4) {
-            if (startPage === 1) {
-                endPage = Math.min(lastPage, startPage + 4);
-            } else {
-                startPage = Math.max(1, endPage - 4);
-            }
+        for (let i = Math.max(1, p.current_page - 2); i <= Math.min(p.last_page, p.current_page + 2); i++) {
+            ul.append(`<li class="page-item ${i===p.current_page?'active':''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`);
         }
 
-        for (let i = startPage; i <= endPage; i++) {
-            $pagination.append(`
-                <li class="page-item ${pagination.current_page === i ? 'active' : ''}">
-                    <a class="page-link" href="#" data-page="${i}">${i}</a>
-                </li>
-            `);
-        }
-
-        $pagination.append(`
-            <li class="page-item ${pagination.current_page === lastPage ? 'disabled' : ''}">
-                <a class="page-link" href="#" data-page="${pagination.current_page + 1}">
-                    &raquo;
-                </a>
-            </li>
-        `);
+        if (p.current_page < p.last_page) addPage(p.current_page + 1, 'Next');
+        addPage(p.last_page, 'Last');
     }
 
-    // --- Modal Control Functions ---
+    function showOrderDetails(order, edit = false) {
+        editableOrderId = edit ? order.numeric_order_id : null;
 
-    function setModalFieldsEditable(isEditable) {
-        // Fields made editable in the modal
-        const fields = ['#detailDeliveryAddress', '#detailDeliveryDate', '#detailQuantity'];
-        fields.forEach(field => {
-            const $field = $(field);
-            $field.prop('readonly', !isEditable);
-            $field.toggleClass('editable', isEditable);
-        });
-        $('#saveChangesBtn').toggle(isEditable);
-    }
-    
-    function showOrderDetails(order, isEdit = false) {
-        editableOrderId = isEdit ? order.numeric_order_id : null;
-        
-        // Populate static fields
         $('#detailOrderId').val(order.order_id);
         $('#detailOrderDate').val(order.created_at);
         $('#detailStatus').val(order.order_status);
         $('#detailTotalAmount').val(formatCurrency(order.total_amount_raw));
         $('#detailFarmer').val(order.farmer);
+        $('#detailQuantity').val(order.items[0]?.quantity || 1);
+        $('#detailDeliveryDate').val(order.delivery_date?.slice(0,10) || '');
+        $('#detailDeliveryAddress').val(order.delivery_address || '');
+        $('#detailPaymentStatus').val(order.payment_status);
 
-        // Populate editable fields
-        $('#detailDeliveryAddress').val(order.delivery_address);
-        $('#detailDeliveryDate').val(order.delivery_date.slice(0, 10)); 
-        
-        const itemQuantity = order.items.length > 0 ? order.items[0].quantity : 0;
-        $('#detailQuantity').val(itemQuantity); 
-
-        // Set edit state
-        setModalFieldsEditable(isEdit);
-
-        const $itemsTable = $('#detailItemsTable tbody');
-        $itemsTable.empty();
-
-        order.items.forEach(item => {
-            $itemsTable.append(`
+        const tbody = $('#detailItemsTable tbody');
+        tbody.empty();
+        order.items.forEach(i => {
+            tbody.append(`
                 <tr>
-                    <td>${item.name}</td>
-                    <td>${formatCurrency(item.price_raw)}</td>
-                    <td>${item.quantity}</td>
-                    <td><span class="badge ${order.payment_status === 'Paid' ? 'badge-delivered-confirmed' : 'badge-make-payment'}">${order.payment_status}</span></td>
+                    <td>${i.name}</td>
+                    <td>${formatCurrency(i.price_raw)}</td>
+                    <td>${i.quantity}</td>
+                    <td>${formatCurrency(i.price_raw * i.quantity)}</td>
                 </tr>
             `);
         });
 
-        if (orderDetailsModal) {
-            orderDetailsModal.show();
-        }
+        // Toggle edit mode
+        ['#detailQuantity', '#detailDeliveryDate', '#detailDeliveryAddress'].forEach(s => {
+            $(s).prop('readonly', !edit);
+        });
+        $('#saveChangesBtn').toggle(edit);
+
+        modal.show();
     }
 
-    // --- Action Handlers (Edit, Delete, Save) ---
-    
-    // Handle Save Changes button click
-    $('#saveChangesBtn').click(function() {
-        if (!editableOrderId) return;
-        
-        // Gather new data
-        const new_quantity = $('#detailQuantity').val();
-        const new_delivery_date = $('#detailDeliveryDate').val();
-        const new_delivery_address = $('#detailDeliveryAddress').val();
-        
-        if (new_quantity <= 0 || !new_delivery_date || !new_delivery_address) {
-            showErrorAlert('Please ensure quantity is positive, and delivery date/address are provided.');
-            return;
-        }
+    // Proper modal close cleanup
+    modalEl.addEventListener('hidden.bs.modal', () => {
+        ['#detailQuantity', '#detailDeliveryDate', '#detailDeliveryAddress'].forEach(s => $(s).prop('readonly', true));
+        $('#saveChangesBtn').hide();
+        editableOrderId = null;
+    });
+
+    // View / Edit Buttons
+    $(document).on('click', '.view-details', e => showOrderDetails($(e.currentTarget).data('order-data')));
+    $(document).on('click', '.edit-order-btn', e => showOrderDetails($(e.currentTarget).data('order-data'), true));
+
+    // Save Changes
+    $('#saveChangesBtn').on('click', function() {
+        const data = {
+            action: 'edit',
+            order_id: editableOrderId,
+            quantity: $('#detailQuantity').val(),
+            delivery_date: $('#detailDeliveryDate').val(),
+            delivery_address: $('#detailDeliveryAddress').val()
+        };
 
         Swal.fire({
-            title: 'Confirm Edit',
-            text: 'Are you sure you want to save these changes to your order?',
-            icon: 'warning',
+            title: 'Save Changes?',
+            icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#2E8B57',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, Save Changes'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: 'views/order_action_process.php', 
-                    type: 'POST',
-                    dataType: 'json',
-                    data: {
-                        action: 'edit',
-                        order_id: editableOrderId,
-                        quantity: new_quantity,
-                        delivery_date: new_delivery_date,
-                        delivery_address: new_delivery_address
-                    },
-                    beforeSend: function() {
-                        Swal.fire({ title: 'Updating Order...', allowOutsideClick: false, showConfirmButton: false, didOpen: () => { Swal.showLoading(); } });
-                    },
-                    success: function(response) {
-                        Swal.close();
-                        if (response.status === 'success') {
-                            Swal.fire('Updated!', response.message, 'success').then(() => {
-                                setModalFieldsEditable(false);
-                                orderDetailsModal.hide();
-                                loadOrders(currentPage, currentStatus, currentDate); 
-                            });
-                        } else {
-                            showErrorAlert(response.message);
-                        }
-                    },
-                    error: function(xhr) {
-                        Swal.close();
-                        showErrorAlert('Error submitting changes. Please check the console.');
-                        console.error("AJAX Error:", xhr.responseText);
+            confirmButtonColor: '#2E8B57'
+        }).then(r => {
+            if (r.isConfirmed) {
+                $.post('views/order_action_process.php', data, res => {
+                    if (res.status === 'success') {
+                        Swal.fire('Updated!', res.message, 'success');
+                        modal.hide();
+                        loadOrders(currentPage, currentStatus, currentDate);
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
                     }
-                });
+                }, 'json');
             }
         });
     });
 
-    // Handle Delete button click
+    // Delete Order
     $(document).on('click', '.delete-order-btn', function() {
-        const orderId = $(this).data('order-id');
-        
+        const id = $(this).data('order-id');
         Swal.fire({
-            title: 'Are you sure?',
-            text: `You are about to delete Order ORD-${orderId}. This cannot be undone.`,
+            title: 'Delete Order?',
+            text: 'This cannot be undone!',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: 'views/order_action_process.php', 
-                    type: 'POST',
-                    dataType: 'json',
-                    data: {
-                        action: 'delete',
-                        order_id: orderId
-                    },
-                    beforeSend: function() {
-                        Swal.fire({ title: 'Deleting Order...', allowOutsideClick: false, showConfirmButton: false, didOpen: () => { Swal.showLoading(); } });
-                    },
-                    success: function(response) {
-                        Swal.close();
-                        if (response.status === 'success') {
-                            Swal.fire('Deleted!', response.message, 'success').then(() => {
-                                loadOrders(currentPage, currentStatus, currentDate); 
-                            });
-                        } else {
-                            showErrorAlert(response.message);
-                        }
-                    },
-                    error: function(xhr) {
-                        Swal.close();
-                        showErrorAlert('Error deleting order. Please check the console.');
-                        console.error("AJAX Error:", xhr.responseText);
+            confirmButtonColor: '#dc3545'
+        }).then(r => {
+            if (r.isConfirmed) {
+                $.post('views/order_action_process.php', { action: 'delete', order_id: id }, res => {
+                    if (res.status === 'success') {
+                        Swal.fire('Deleted!', res.message, 'success');
+                        loadOrders(currentPage, currentStatus, currentDate);
                     }
-                });
+                }, 'json');
             }
         });
     });
 
-    // Handle Edit button click (opens modal in edit mode)
-    $(document).on('click', '.edit-order-btn', function() {
-        try {
-            const orderData = $(this).data('order-data');
-            showOrderDetails(orderData, true); // Edit mode
-        } catch (e) {
-            console.error("Error retrieving order data for edit:", e);
-            showErrorAlert("Could not retrieve order details for editing.");
-        }
-    });
-    
-    // Handle View Details button click (opens modal in view mode)
-    $(document).on('click', '.view-details', function() {
-        try {
-            const orderData = $(this).data('order-data');
-            showOrderDetails(orderData, false); // View mode
-        } catch (e) {
-            console.error("Error retrieving order data for view:", e);
-            showErrorAlert("Could not retrieve order details.");
-        }
-    });
-    
-    // Payment and error functions (kept unchanged)
-    function showErrorAlert(message) {
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: message
-            });
-        } else {
-            alert(message);
-        }
-    }
-    
-    $(document).on('click', '.payBtn:not(.paid)', function() {
-        const orderId = $(this).data('order-id');
-        const amount = parseFloat($(this).data('order-amount'));
-        const email = $(this).data('order-email');
-        processPayment(orderId, amount, email);
-    });
-    
-    function processPayment(orderId, amount, email) {
+    // PAYMENT - FIXED: sends amount!
+    $(document).on('click', '.payBtn:not([disabled])', function() {
+        const btn = $(this);
+        const orderId = btn.data('order-id');
+        const amount = parseFloat(btn.data('order-amount'));
+        const email = btn.data('order-email');
+
         const handler = PaystackPop.setup({
-            key: 'pk_test_820ef67599b8a00fd2dbdde80e56e94fda5ed79f',
+            key: 'pk_test_820ef67599b8a00fd2dbdde80e56e94fda5ed79f', // Change to live key later
             email: email,
             amount: amount * 100,
             currency: 'NGN',
-            ref: 'ORD-' + orderId + '-' + Math.floor(Math.random() * 1000000000 + 1),
+            ref: 'ORD-' + orderId + '-' + Date.now(),
             callback: function(response) {
-                $.ajax({
-                    url: 'payment_process.php',
-                    type: 'POST',
-                    dataType: 'json',
-                    data: {
-                        order_id: orderId,
-                        reference: response.reference,
-                        amount: amount
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Payment Successful',
-                                text: 'Payment processed and confirmation email sent.',
-                                showConfirmButton: false,
-                                timer: 3000
-                            }).then(() => {
-                                loadOrders(currentPage, currentStatus, currentDate);
-                            });
-                        } else {
-                            showErrorAlert('Payment verification failed: ' + response.message);
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        showErrorAlert('Error processing payment: ' + error);
+                btn.prop('disabled', true).html('Processing...');
+
+                $.post('payment_process.php', {
+                    order_id: orderId,
+                    reference: response.reference,
+                    amount: amount   // THIS LINE FIXES THE ERROR!
+                }, function(res) {
+                    if (res.success) {
+                        Swal.fire('Payment Successful!', 'Your order is now being processed.', 'success');
+                        loadOrders(currentPage, currentStatus, currentDate);
+                    } else {
+                        Swal.fire('Payment Failed', res.message || 'Verification failed', 'error');
+                        btn.prop('disabled', false).html('Pay Now');
                     }
+                }, 'json').fail(() => {
+                    Swal.fire('Error', 'Could not connect to server', 'error');
+                    btn.prop('disabled', false).html('Pay Now');
                 });
             },
             onClose: function() {
-                console.log('Payment window closed');
+                btn.prop('disabled', false).html('Pay Now');
             }
         });
         handler.openIframe();
-    }
-    
-    // Event listeners
-    $('#statusFilterOrders, #dateFilterOrders').change(function() {
-        loadOrders(1, $('#statusFilterOrders').val(), $('#dateFilterOrders').val());
     });
 
+    // Filters
+    $('#statusFilterOrders, #dateFilterOrders').on('change', function() {
+        loadOrders(1, $('#statusFilterOrders').val(), $('#dateFilterOrders').val());
+    });
+    $('#clearFilters').on('click', function() {
+        $('#statusFilterOrders, #dateFilterOrders').val('');
+        loadOrders(1);
+    });
+
+    // Pagination
     $(document).on('click', '#pagination .page-link', function(e) {
         e.preventDefault();
         const page = $(this).data('page');
-        loadOrders(page, currentStatus, currentDate);
+        if (page) loadOrders(page, currentStatus, currentDate);
     });
 
-    // Initial load of orders
-    loadOrders(1);
+    // Initial load
+    loadOrders();
 });
 </script>
+

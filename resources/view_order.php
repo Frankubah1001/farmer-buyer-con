@@ -34,6 +34,7 @@ $filterOrderId = isset($_GET['order_id']) ? intval($_GET['order_id']) : 0;
                         <th>Produce</th>
                         <th>Ordered Quantity</th>
                         <th>Price per Unit</th>
+                        <th>Amount to Pay</th>
                         <th>Delivery Address</th>
                         <th>Order Date</th>
                         <th>Delivery Date</th>

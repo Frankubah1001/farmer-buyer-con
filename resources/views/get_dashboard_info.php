@@ -1,17 +1,18 @@
 <?php
+session_start(); // Start session FIRST before any output
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 include '../DBcon.php';
-session_start();
 
 header('Content-Type: application/json');
 
 // Get user ID from session
 $user_id = $_SESSION['user_id'] ?? 0;
 if ($user_id <= 0) {
-    echo json_encode(['error' => 'Farmer not logged in.']);
+    echo json_encode(['error' => 'Farmer not logged in.', 'session_user_id' => $user_id]);
     exit;
 }
 
@@ -113,14 +114,61 @@ while ($row = $result_recent->fetch_assoc()) {
 }
 $stmt_recent->close();
 
+// Wallet Balance Calculation
+// Use annual earnings as the base (total successful sales for the year)
+$total_earnings_base = floatval($annual_earnings);
+
+// Calculate deductions
+$platform_fee_rate = 0.005; // 0.5%
+$admin_fee_rate = 0.015; // 1.5%
+
+$platform_fee_amount = $total_earnings_base * $platform_fee_rate;
+$admin_fee_amount = $total_earnings_base * $admin_fee_rate;
+$total_deductions = $platform_fee_amount + $admin_fee_amount;
+
+// Net earnings after deductions
+$net_earnings = $total_earnings_base - $total_deductions;
+
+// Total Withdrawn (Approved or Pending) - Rejected ones don't count against balance
+$sql_withdrawn = "SELECT COALESCE(SUM(amount), 0) as total FROM withdrawals WHERE user_id = ? AND status != 'Rejected'";
+$stmt_withdrawn = $conn->prepare($sql_withdrawn);
+$stmt_withdrawn->bind_param('i', $user_id);
+$stmt_withdrawn->execute();
+$result_withdrawn = $stmt_withdrawn->get_result();
+$total_withdrawn = floatval($result_withdrawn->fetch_assoc()['total']);
+$stmt_withdrawn->close();
+
+$wallet_balance = $net_earnings - $total_withdrawn;
+
+// Withdrawal History
+$sql_withdrawals = "SELECT withdrawal_id, amount, bank_name, status, DATE_FORMAT(request_date, '%Y/%m/%d %H:%i') as date FROM withdrawals WHERE user_id = ? ORDER BY request_date DESC LIMIT 10";
+$stmt_withdrawals = $conn->prepare($sql_withdrawals);
+$stmt_withdrawals->bind_param('i', $user_id);
+$stmt_withdrawals->execute();
+$result_withdrawals = $stmt_withdrawals->get_result();
+$withdrawal_history = [];
+while ($row = $result_withdrawals->fetch_assoc()) {
+    $withdrawal_history[] = $row;
+}
+$stmt_withdrawals->close();
+
+// Return all data as JSON
 echo json_encode([
-    'total_products' => $total_products,
+    'total_products' => intval($total_products),
     'frequent_produce' => $frequent_produce,
-    'total_orders' => $total_orders,
-    'monthly_orders' => $monthly_orders,
-    'yearly_orders' => $yearly_orders,
-    'monthly_earnings' => $monthly_earnings,
-    'annual_earnings' => $annual_earnings,
-    'recent_transactions' => $recent_transactions
+    'total_orders' => intval($total_orders),
+    'monthly_orders' => intval($monthly_orders),
+    'yearly_orders' => intval($yearly_orders),
+    'monthly_earnings' => floatval($monthly_earnings),
+    'annual_earnings' => floatval($annual_earnings),
+    'recent_transactions' => $recent_transactions,
+    'wallet_balance' => floatval($wallet_balance),
+    'total_earnings_base' => floatval($total_earnings_base),
+    'platform_fee_amount' => floatval($platform_fee_amount),
+    'admin_fee_amount' => floatval($admin_fee_amount),
+    'total_deductions' => floatval($total_deductions),
+    'net_earnings' => floatval($net_earnings),
+    'total_withdrawn' => floatval($total_withdrawn),
+    'withdrawal_history' => $withdrawal_history
 ]);
 ?>

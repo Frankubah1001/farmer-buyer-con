@@ -11,14 +11,17 @@ $perPage = 5;
 function getBuyerLatestPaidOrder($conn, $buyer_id) {
     $sql = "
         SELECT 
-            o.order_id, o.farmerName, o.quantity, o.price_per_unit, 
+            o.order_id, o.quantity, o.price_per_unit, 
             o.delivery_address, o.delivery_date, o.order_status, 
             o.produce_id, o.total_amount, o.payment_status,
-            p.name as product_name
+            o.user_id,
+            pl.produce as product_name,
+            CONCAT(u.first_name, ' ', u.last_name) as farmerName
         FROM orders o
-        LEFT JOIN products p ON o.produce_id = p.id
+        LEFT JOIN produce_listings pl ON o.produce_id = pl.prod_id
+        LEFT JOIN users u ON o.user_id = u.user_id
         WHERE o.buyer_id = ? AND o.payment_status = 'Paid'
-        ORDER BY o.order_date DESC
+        ORDER BY o.created_at DESC
         LIMIT 1
     ";
 
@@ -31,7 +34,7 @@ function getBuyerLatestPaidOrder($conn, $buyer_id) {
     
     if ($order) {
         // Get transport cost from transporters table (fees column)
-        $feeSql = "SELECT fees FROM transporters LIMIT 1";
+        $feeSql = "SELECT fees FROM transporters WHERE fees IS NOT NULL ORDER BY fees ASC LIMIT 1";
         $feeResult = $conn->query($feeSql);
         
         if ($feeResult && $feeRow = $feeResult->fetch_assoc()) {
@@ -121,9 +124,16 @@ try {
     // Sanitize input
     $search_safe = '%' . $conn->real_escape_string($search) . '%';
     $location_safe = $conn->real_escape_string($location);
+    $availability = $_GET['availability'] ?? ''; // NEW: Availability filter
     
     // --- Build WHERE Clause and Parameters for Filtering ---
     $where = "WHERE 1=1";
+    
+    // EXCLUDE BOOKED TRANSPORTERS
+    $where .= " AND t.transporter_id NOT IN (
+        SELECT transporter_id FROM transport_bookings WHERE booking_status != 'Cancelled'
+    )";
+    
     $filterParams = [];
     $filterTypes = '';
 
@@ -146,6 +156,13 @@ try {
         $filterParams[] = $location_safe;
         $filterParams[] = '%' . $location_safe . '%';
         $filterTypes .= 'ss';
+    }
+    
+    // NEW: Availability filtering
+    if (!empty($availability)) {
+        $where .= " AND t.availability = ?";
+        $filterParams[] = $availability;
+        $filterTypes .= 's';
     }
 
     if (!empty($status)) {
@@ -183,6 +200,7 @@ try {
             t.transporter_id, t.company_name, t.contact_person, t.email, t.phone, 
             t.vehicle_type, t.vehicle_capacity, t.fees, t.operating_areas, 
             t.address, t.license_number, t.is_verified,
+            t.availability,
             s.state_name, c.city_name
         FROM transporters t
         LEFT JOIN states s ON t.state_id = s.state_id
@@ -218,6 +236,19 @@ try {
                                 ? $row['city_name'] . ', ' . $row['state_name']
                                 : ($row['operating_areas'] ?: 'Multiple Locations');
         
+        // Map availability text
+        $availability_map = [
+            'immediate' => 'Immediately',
+            '1-3' => 'Within 1-3 Days',
+            '3-5' => 'Within 3-5 Days',
+            'unavailable' => 'Unavailable'
+        ];
+        $availability_value = $row['availability'] ?: 'immediate';
+        $availability_text = $availability_map[$availability_value] ?? 'Immediately';
+        
+        // Properly convert fees to number (handle varchar type)
+        $fees_value = !empty($row['fees']) ? (float)$row['fees'] : 0;
+        
         $transporters[] = [
             'id'            => $row['transporter_id'],
             'company'       => $row['company_name'] ?: 'Individual Transporter',
@@ -227,9 +258,11 @@ try {
             'vehicles'      => $row['vehicle_type'] . ' (' . $row['vehicle_capacity'] . ')',
             'operating_areas' => $row['operating_areas'] ?: 'Nationwide',
             'location'      => $location_display, // Use the combined display for the table
-            'price'         => $row['fees'] ?? 24120,
+            'price'         => $fees_value, // Use actual fee from database
             'is_verified'   => (bool)$row['is_verified'],
-            'license_number' => $row['license_number']
+            'license_number' => $row['license_number'],
+            'availability'  => $availability_value,
+            'availability_text' => $availability_text
         ];
     }
     

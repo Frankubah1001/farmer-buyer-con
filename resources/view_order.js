@@ -16,7 +16,7 @@ $(document).ready(function () {
             dataType: 'json',
             success: function (response) {
                 if (response.error) {
-                    $('#availableProduceTable tbody').html('<tr><td colspan="10" class="text-center">' + response.error + '</td></tr>');
+                    $('#availableProduceTable tbody').html('<tr><td colspan="12" class="text-center">' + response.error + '</td></tr>');
                     $('#pagination').empty();
                 } else {
                     populateProduceTable(response.data);
@@ -26,74 +26,69 @@ $(document).ready(function () {
             },
             error: function (xhr, status, error) {
                 console.error("Error fetching orders:", error);
-                $('#availableProduceTable tbody').html('<tr><td colspan="10" class="text-center">Error loading data.</td></tr>');
+                $('#availableProduceTable tbody').html('<tr><td colspan="12" class="text-center">Error loading data.</td></tr>');
                 $('#pagination').empty();
             }
         });
     }
 
     function getStatusBadgeClass(status) {
-        switch(status) {
-            case 'Delivery Confirmed':
+        switch (status) {
+            case 'Produce Delivered & Confirmed':
                 return 'badge bg-success text-white'; // Green
-            case 'Still Awaiting Delivery':
+            case 'Produce Transported':
                 return 'badge bg-primary text-white'; // Blue
-            case 'Delivery Not Received':
-                return 'badge bg-danger text-white'; // Light blue
-            case 'Delivery Cancelled':
-                return 'badge bg-secondary text-white'; // Red
+            case 'Processing Produce For Delivery':
+                return 'badge bg-info text-white'; // Light blue
+            case 'Make Payment':
+                return 'badge bg-warning text-dark'; // Yellow
+            case 'Cancelled':
+                return 'badge bg-secondary text-white'; // Gray
             default:
-                return ''; // Gray
+                return 'badge bg-secondary text-white'; // Default
         }
     }
 
     function populateProduceTable(orderListings) {
-    const tbody = $('#availableProduceTable tbody');
-    tbody.empty();
+        const tbody = $('#availableProduceTable tbody');
+        tbody.empty();
 
-    if (orderListings.length === 0) {
-        tbody.html('<tr><td colspan="11" class="text-center">No orders found.</td></tr>');
-        return;
-    }
+        if (orderListings.length === 0) {
+            tbody.html('<tr><td colspan="12" class="text-center">No orders found.</td></tr>');
+            return;
+        }
 
-    orderListings.forEach((order) => {
-        const statusBadgeClass = getStatusBadgeClass(order.order_status);
-        // Check if payment_status is 'Paid' to disable specific options
-        const isPaid = order.payment_status === 'Paid';
-        const row = `
+        orderListings.forEach((order) => {
+            const statusBadgeClass = getStatusBadgeClass(order.order_status);
+
+            const row = `
             <tr data-order-id="${order.order_id}">
                 <td>${order.order_id}</td>
                 <td>${order.buyer_name}</td>
                 <td>${order.produce_name}</td>
                 <td>${order.order_quantity}</td>
                 <td>${order.price_per_unit}</td>
+                <td>${order.total_amount}</td>
                 <td>${order.order_delivery_address}</td>
                 <td>${order.order_date}</td>
                 <td>${order.delivery_date}</td>
                 <td>${order.buyer_phone}</td>
                 <td>
-                    <select class="form-control form-control-sm order-status-dropdown" data-order-id="${order.order_id}" ${order.order_status === 'Produce Delivered Confirmed' || order.order_status === 'Cancelled' ? 'disabled' : ''}>
+                    <select class="form-control form-control-sm order-status-dropdown" data-order-id="${order.order_id}" ${order.order_status === 'Produce Delivered & Confirmed' ? 'disabled' : ''}>
                         <option value="">Select Status</option>
-                        <option value="Processing Produce" ${order.order_status === 'Processing Produce' ? 'selected' : ''} ${isPaid ? 'disabled' : ''}>Processing</option>
-                        <option value="Make Payment" ${order.order_status === 'Make Payment' ? 'selected' : ''} ${isPaid ? 'disabled' : ''}>Make Payment</option>
-                        <option value="Produce On the Way" ${order.order_status === 'Produce On the Way' ? 'selected' : ''} ${isPaid ? 'disabled' : ''}>Produce On the Way</option>
-                        <option value="Produce Delivered Confirmed" ${order.order_status === 'Produce Delivered Confirmed' ? 'selected' : ''}>Produce Delivered Confirmed</option>
-                        <option value="Cancelled" ${order.order_status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                        <option value="Make Payment" ${order.order_status === 'Make Payment' ? 'selected' : ''}>Make Payment</option>
+                        <option value="Processing Produce For Delivery" ${order.order_status === 'Processing Produce For Delivery' ? 'selected' : ''}>Processing Produce For Delivery</option>
+                        <option value="Produce Transported" ${order.order_status === 'Produce Transported' ? 'selected' : ''}>Produce Transported</option>
+                        <option value="Produce Delivered & Confirmed" ${order.order_status === 'Produce Delivered & Confirmed' ? 'selected' : ''}>Produce Delivered & Confirmed</option>
                     </select>
                 </td>
-                <td><span class="${statusBadgeClass}">${order.order_status}</span></td>
+                <td class="status-text"><span class="${statusBadgeClass}">${order.order_status}</span></td>
                 <td><span class="${statusBadgeClass}">${order.payment_status}</span></td>
             </tr>
         `;
-        tbody.append(row);
-
-        // Disable dropdown if order status is "Delivered Confirmed" or "Cancelled" on initial load
-        if (order.order_status === 'Cancelled' || order.order_status === 'Produce Delivered Confirmed') {
-            const dropdown = tbody.find(`.order-status-dropdown[data-order-id="${order.order_id}"]`);
-            dropdown.prop('disabled', true);
-        }
-    });
-}
+            tbody.append(row);
+        });
+    }
 
     function populatePagination(totalPages, currentPage) {
         const pagination = $('#pagination');
@@ -137,37 +132,49 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.status === 'success') {
                     toastr.success(response.message);
-                    loadAvailableProduce(currentPage);
+                    if (response.email_warning) {
+                        toastr.warning(response.email_warning);
+                    }
+                    // We don't reload the table here anymore to avoid page reload/flicker, 
+                    // as we updated the UI immediately.
                 } else {
                     toastr.error(response.message);
+                    loadAvailableProduce(currentPage); // Reload to revert to correct state
                 }
             },
             error: function (xhr, status, error) {
                 console.error("Error updating order status:", error);
                 toastr.error("An error occurred while updating the order status.");
+                loadAvailableProduce(currentPage); // Reload to revert
             }
         });
     }
 
-    $('#produceFilterInline, #locationFilterInline').on('keyup change', function() {
+    $('#produceFilterInline, #locationFilterInline').on('keyup change', function () {
         loadAvailableProduce(1);
     });
 
-    $(document).on('change', '.order-status-dropdown', function() {
+    $(document).on('change', '.order-status-dropdown', function () {
         const orderId = $(this).data('order-id');
         const newStatus = $(this).val();
-        
+
         if (newStatus === '') {
             toastr.warning('Please select a valid status');
             return;
         }
-        
-        updateOrderStatus(orderId, newStatus);
-        
-        // Disable dropdown for certain statuses
-        if (newStatus === 'Produce Delivered Confirmed' || newStatus === 'Cancelled') {
+
+        // Immediate UI update
+        const row = $(this).closest('tr');
+        const statusBadge = row.find('.status-text span');
+        statusBadge.text(newStatus);
+        statusBadge.attr('class', getStatusBadgeClass(newStatus));
+
+        // Disable if final status
+        if (newStatus === 'Produce Delivered & Confirmed') {
             $(this).prop('disabled', true);
         }
+
+        updateOrderStatus(orderId, newStatus);
     });
 
     loadAvailableProduce(1);

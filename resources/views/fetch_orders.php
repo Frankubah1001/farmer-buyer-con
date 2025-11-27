@@ -28,16 +28,15 @@ $query = "SELECT SQL_CALC_FOUND_ROWS
                 o.order_status,
                 o.payment_status,
                 DATE_FORMAT(o.payment_date, '%Y-%m-%d %H:%i:%s') AS payment_date,
-                o.farmerName AS farmer,
+                CONCAT(f.first_name, ' ', f.last_name) AS farmer,
                 o.delivery_date,
                 o.delivery_address,
-                o.payment_status,
                 o.paystack_reference,
-                o.payment_date,
                 o.payment_amount,
                 b.email AS buyer_email
               FROM orders o
               LEFT JOIN buyers b ON o.buyer_id = b.buyer_id
+              LEFT JOIN users f ON o.user_id = f.user_id
               WHERE o.buyer_id = ?";
 
 $params = [$buyer_id];
