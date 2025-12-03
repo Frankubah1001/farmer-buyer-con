@@ -218,7 +218,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['action'])) {
         $types .= 's';
     }
     if ($location) {
-        $sql .= " AND u.farm_location_text LIKE ?";
+        $sql .= " AND u.farm_full_address LIKE ?";
         $locationTerm = "%$location%";
         $params[] = $locationTerm;
         $types .= 's';
@@ -262,7 +262,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['action'])) {
         $countTypes .= 's';
     }
     if ($location) {
-        $countSql .= " AND farm_location_text LIKE ?";
+        $countSql .= " AND farm_full_address LIKE ?";
         $countParams[] = $locationTerm;
         $countTypes .= 's';
     }
@@ -290,7 +290,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
     $location = isset($_GET['location']) ? trim($_GET['location']) : '';
     $info_completed = 1;
 
-    $sql = "SELECT u.first_name, u.last_name, u.crops_produced, u.email, u.phone, u.created_at, u.farm_location_text, u.cbn_approved, s.state_name, c.city_name 
+    $sql = "SELECT u.first_name, u.last_name, u.crops_produced, u.email, u.phone, u.created_at, u.farm_full_address, u.cbn_approved, s.state_name, c.city_name 
             FROM users u 
             LEFT JOIN states s ON u.state_id = s.state_id 
             LEFT JOIN cities c ON u.city_id = c.city_id 
@@ -318,7 +318,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
         $types .= 's';
     }
     if ($location) {
-        $sql .= " AND u.farm_location_text LIKE ?";
+        $sql .= " AND u.farm_full_address LIKE ?";
         $locationTerm = "%$location%";
         $params[] = $locationTerm;
         $types .= 's';
@@ -339,7 +339,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
             'Email' => $row['email'],
             'Phone' => $row['phone'],
             'Registration Date' => date('d-M-Y', strtotime($row['created_at'])),
-            'Location' => $row['farm_location_text'] ?? 'N/A',
+            'Location' => $row['farm_full_address'] ?? 'N/A',
             'Status' => $row['cbn_approved'] == 1 ? 'Approved' : ($row['cbn_approved'] == 2 ? 'Disabled' : 'Pending'),
             'State' => $row['state_name'] ?? 'N/A',
             'City' => $row['city_name'] ?? 'N/A'

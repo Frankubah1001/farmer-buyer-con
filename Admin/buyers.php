@@ -1,12 +1,7 @@
 <?php
-session_start();
+// Include session timeout check
+require_once 'session_check.php';
 require_once 'api/DBcon.php';
-
-// Check admin session
-if (!isset($_SESSION['cbn_user_id'])) {
-    header('Location: cbn_login.php');
-    exit();
-}
 
 $active = 'buyers';
 

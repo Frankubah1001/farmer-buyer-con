@@ -1,4 +1,7 @@
 <?php
+// Include session timeout check
+require_once 'session_check.php';
+
 // orders.php - Updated: View-only mode with enhanced, structured modal and AJAX integration
 $active = 'orders';
 ?>
@@ -6,6 +9,28 @@ $active = 'orders';
 <html lang="en">
     <?php include 'header.php'; ?>
 <body>
+    <style>
+    .badge-success
+ {
+    background-color:rgb(47, 176, 0);
+    color: white;
+}
+    .badge-primarys
+ {
+    background-color:rgb(74, 76, 79);
+    color: white;
+}
+    .badge-approved1
+ {
+    background-color:rgb(133, 82, 5);
+    color: white;
+}
+    .badge-approved2
+ {
+    background-color:rgb(66, 173, 27);
+    color: white;
+}
+    </style>
     <!-- Header -->
     <header class="header">
         <button class="toggle-btn" id="headerToggle">
@@ -35,16 +60,15 @@ $active = 'orders';
             
             <div class="row mb-3">
                 <div class="col-md-3">
-                    <input type="text" class="form-control" placeholder="Search by Order ID, Buyer or Farmer..." id="searchOrders">
+                    <input type="text" class="form-control" placeholder="Search by Order ID, Buyer, Farmer, or Produce..." id="searchOrders">
                 </div>
                 <div class="col-md-3">
                     <select class="form-select" id="filterStatus">
                         <option value="">All Status</option>
-                        <option value="Order Sent">Pending</option>
-                        <option value="Produce On the Way">Shipped</option>
-                        <option value="Produce Delivered Confirmed">Completed</option>
-                        <option value="Sold">Sold</option>
-                        <option value="Make Payment">Awaiting Payment</option>
+                        <option value="Make Payment">Make Payment</option>
+                        <option value="Processing Produce For Delivery">Processing Produce For Delivery</option>
+                        <option value="Produce Transported">Produce Transported</option>
+                        <option value="Produce Delivered & Confirmed">Produce Delivered & Confirmed</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -144,22 +168,20 @@ $active = 'orders';
             let currentPage = 1;
             const itemsPerPage = 10;
 
-            // Status mapping for display
+            // Status mapping for display (now using actual status values)
             const statusDisplayMap = {
-                'Order Sent': 'Pending',
-                'Produce On the Way': 'Shipped',
-                'Produce Delivered Confirmed': 'Completed',
-                'Sold': 'Sold',
-                'Make Payment': 'Awaiting Payment'
+                'Make Payment': 'Make Payment',
+                'Processing Produce For Delivery': 'Processing Produce For Delivery',
+                'Produce Transported': 'Produce Transported',
+                'Produce Delivered & Confirmed': 'Produce Delivered & Confirmed'
             };
 
             // Status badge classes
             const statusBadgeMap = {
-                'Order Sent': 'badge-pending',
-                'Produce On the Way': 'badge-approved',
-                'Produce Delivered Confirmed': 'badge-approved',
-                'Sold': 'badge-success',
-                'Make Payment': 'badge-blue'
+                'Make Payment': 'badge-pending',
+                'Processing Produce For Delivery': 'badge-blue',
+                'Produce Transported': 'badge-approved1',
+                'Produce Delivered & Confirmed': 'badge-approved2'
             };
 
             // Load orders on page load
@@ -202,7 +224,7 @@ $active = 'orders';
                                     <td>${order.produce} (${order.quantity}kg)</td>
                                     <td>${order.quantity}kg</td>
                                     <td>₦${parseFloat(order.total_amount).toLocaleString()}</td>
-                                    <td><span class="badge ${statusBadgeMap[order.order_status] || 'badge-primary'}">${statusDisplayMap[order.order_status] || order.order_status}</span></td>
+                                    <td><span class="badge ${statusBadgeMap[order.order_status] || 'badge-primarys'}">${statusDisplayMap[order.order_status] || order.order_status}</span></td>
                                     <td>${new Date(order.order_date).toLocaleDateString('en-GB')}</td>
                                     <td>
                                         <div class="action-buttons">
@@ -397,10 +419,10 @@ $active = 'orders';
                                             </div>
                                             <div class="card-body">
                                                 <p><i class="fas fa-calendar-check text-info me-2"></i><strong>Placed:</strong> ${new Date(order.created_at).toLocaleString('en-GB')}</p>
-                                                <p><i class="fas fa-truck text-warning me-2"></i><strong>Shipped:</strong> ${order.order_status === 'Produce On the Way' || order.order_status === 'Produce Delivered Confirmed' ? new Date(order.updated_at).toLocaleString('en-GB') : 'N/A'}</p>
-                                                <p><i class="fas fa-home text-success me-2"></i><strong>Delivered:</strong> ${order.order_status === 'Produce Delivered Confirmed' ? new Date(order.updated_at).toLocaleString('en-GB') : 'N/A'}</p>
-                                                <p><i class="fas fa-route text-muted me-2"></i><strong>Method:</strong> N/A</p>
-                                                <p><i class="fas fa-barcode text-muted me-2"></i><strong>Tracking:</strong> ${order.paystack_reference || 'N/A'}</p>
+                                                <p><i class="fas fa-truck text-warning me-2"></i><strong>Shipped:</strong> ${order.order_status === 'Produce Transported' || order.order_status === 'Produce Delivered & Confirmed' ? 'Yes' : 'Pending'}</p>
+                                                <p><i class="fas fa-home text-success me-2"></i><strong>Delivered:</strong> ${order.order_status === 'Produce Delivered & Confirmed' ? 'Yes' : 'Pending'}</p>
+                                                <p><i class="fas fa-route text-muted me-2"></i><strong>Method:</strong> ${order.vehicle_type || 'N/A'}</p>
+                                                <p><i class="fas fa-barcode text-muted me-2"></i><strong>Tracking:</strong> ${order.paystack_reference || 'ORD-' + order.order_id}</p>
                                                 <p><i class="fas fa-map text-muted me-2"></i><strong>Route:</strong> ${order.farmer_address} to ${order.delivery_address}</p>
                                                 <p><i class="fas fa-clock text-muted me-2"></i><strong>ETA:</strong> ${order.delivery_date}</p>
                                             </div>

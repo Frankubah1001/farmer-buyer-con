@@ -1,4 +1,7 @@
 <?php
+// Include session timeout check
+require_once 'session_check.php';
+
 // settings.php - Updated with separate modal popups for Add/Edit in each section
 $active = 'settings';
 ?>

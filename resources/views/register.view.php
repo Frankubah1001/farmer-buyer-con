@@ -108,6 +108,17 @@ if (!in_array($gender, ['Male','Female'])) {
     $errors[] = "Invalid gender.";
 }
 
+// Password Complexity
+$passwordRegex = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/';
+if (!preg_match($passwordRegex, $password)) {
+    $errors[] = "Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.";
+}
+
+// Phone Format
+if (!preg_match('/^\d{11}$/', $phone)) {
+    $errors[] = "Phone number must be 11 digits.";
+}
+
 // Email uniqueness
 if (empty($errors)) {
     $stmt = $conn->prepare("SELECT user_id FROM users WHERE email = ?");

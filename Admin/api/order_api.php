@@ -88,7 +88,7 @@ try {
                       JOIN produce_listings pl ON o.produce_id = pl.prod_id
                       WHERE 1=1";
         if ($search) {
-            $count_sql .= " AND (o.order_id LIKE ? OR b.firstname LIKE ? OR b.lastname LIKE ? OR o.farmerName LIKE ?)";
+            $count_sql .= " AND (o.paystack_reference LIKE ? OR o.order_id LIKE ? OR b.firstname LIKE ? OR b.lastname LIKE ? OR o.farmerName LIKE ? OR pl.produce LIKE ?)";
         }
         if ($status) {
             $count_sql .= " AND o.order_status = ?";
@@ -104,13 +104,27 @@ try {
         if ($search && $status && $fromDate && $toDate) {
             $like = "%$search%";
             $toDateEnd = $toDate . ' 23:59:59';
-            $count_stmt->bind_param('ssssss', $like, $like, $like, $like, $status, $fromDate, $toDateEnd);
+            $count_stmt->bind_param('sssssssss', $like, $like, $like, $like, $like, $like, $status, $fromDate, $toDateEnd);
+        } elseif ($search && $fromDate && $toDate) {
+            $like = "%$search%";
+            $toDateEnd = $toDate . ' 23:59:59';
+            $count_stmt->bind_param('ssssssss', $like, $like, $like, $like, $like, $like, $fromDate, $toDateEnd);
         } elseif ($search && $status) {
             $like = "%$search%";
-            $count_stmt->bind_param('ssss', $like, $like, $like, $like, $status);
+            $count_stmt->bind_param('sssssss', $like, $like, $like, $like, $like, $like, $status);
+        } elseif ($search && $fromDate) {
+            $like = "%$search%";
+            $count_stmt->bind_param('sssssss', $like, $like, $like, $like, $like, $like, $fromDate);
+        } elseif ($search && $toDate) {
+            $like = "%$search%";
+            $toDateEnd = $toDate . ' 23:59:59';
+            $count_stmt->bind_param('sssssss', $like, $like, $like, $like, $like, $like, $toDateEnd);
         } elseif ($search) {
             $like = "%$search%";
-            $count_stmt->bind_param('ssss', $like, $like, $like, $like);
+            $count_stmt->bind_param('ssssss', $like, $like, $like, $like, $like, $like);
+        } elseif ($status && $fromDate && $toDate) {
+            $toDateEnd = $toDate . ' 23:59:59';
+            $count_stmt->bind_param('sss', $status, $fromDate, $toDateEnd);
         } elseif ($status) {
             $count_stmt->bind_param('s', $status);
         } elseif ($fromDate && $toDate) {
@@ -141,7 +155,7 @@ try {
                 JOIN users u ON o.user_id = u.user_id
                 WHERE 1=1";
         if ($search) {
-            $sql .= " AND (o.order_id LIKE ? OR b.firstname LIKE ? OR b.lastname LIKE ? OR o.farmerName LIKE ?)";
+            $sql .= " AND (o.paystack_reference LIKE ? OR o.order_id LIKE ? OR b.firstname LIKE ? OR b.lastname LIKE ? OR o.farmerName LIKE ? OR pl.produce LIKE ?)";
         }
         if ($status) {
             $sql .= " AND o.order_status = ?";
@@ -163,13 +177,27 @@ try {
         if ($search && $status && $fromDate && $toDate) {
             $like = "%$search%";
             $toDateEnd = $toDate . ' 23:59:59';
-            $stmt->bind_param('ssssssii', $like, $like, $like, $like, $status, $fromDate, $toDateEnd, $limit, $offset);
+            $stmt->bind_param('sssssssssii', $like, $like, $like, $like, $like, $like, $status, $fromDate, $toDateEnd, $limit, $offset);
+        } elseif ($search && $fromDate && $toDate) {
+            $like = "%$search%";
+            $toDateEnd = $toDate . ' 23:59:59';
+            $stmt->bind_param('ssssssssii', $like, $like, $like, $like, $like, $like, $fromDate, $toDateEnd, $limit, $offset);
         } elseif ($search && $status) {
             $like = "%$search%";
-            $stmt->bind_param('sssssii', $like, $like, $like, $like, $status, $limit, $offset);
+            $stmt->bind_param('sssssssii', $like, $like, $like, $like, $like, $like, $status, $limit, $offset);
+        } elseif ($search && $fromDate) {
+            $like = "%$search%";
+            $stmt->bind_param('sssssssii', $like, $like, $like, $like, $like, $like, $fromDate, $limit, $offset);
+        } elseif ($search && $toDate) {
+            $like = "%$search%";
+            $toDateEnd = $toDate . ' 23:59:59';
+            $stmt->bind_param('sssssssii', $like, $like, $like, $like, $like, $like, $toDateEnd, $limit, $offset);
         } elseif ($search) {
             $like = "%$search%";
-            $stmt->bind_param('ssssii', $like, $like, $like, $like, $limit, $offset);
+            $stmt->bind_param('ssssssii', $like, $like, $like, $like, $like, $like, $limit, $offset);
+        } elseif ($status && $fromDate && $toDate) {
+            $toDateEnd = $toDate . ' 23:59:59';
+            $stmt->bind_param('sssii', $status, $fromDate, $toDateEnd, $limit, $offset);
         } elseif ($status) {
             $stmt->bind_param('sii', $status, $limit, $offset);
         } elseif ($fromDate && $toDate) {

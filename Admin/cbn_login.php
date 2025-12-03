@@ -13,7 +13,7 @@ if (isset($_SESSION['cbn_user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CBN Admin Login</title>
+    <title>Admin Login</title>
     <!-- Load Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Use Inter font -->
@@ -43,7 +43,7 @@ if (isset($_SESSION['cbn_user_id'])) {
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
             <h2 class="mt-4 text-3xl font-extrabold text-gray-900">
-                CBN Admin Portal
+                Admin Portal
             </h2>
             <p class="mt-2 text-sm text-gray-600">
                 Sign in to manage farmer data

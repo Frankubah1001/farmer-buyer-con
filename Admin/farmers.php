@@ -1,13 +1,9 @@
 <?php
-session_start();
+// Include session timeout check
+require_once 'session_check.php';
+
 // Use the centralized DB connection from the api directory
 require_once 'api/DBcon.php';
-
-// Check admin session
-if (!isset($_SESSION['cbn_user_id'])) {
-    header('Location: cbn_login.php');
-    exit();
-}
 // farmers.php - Full farmers management page
 $active = 'farmers';
 
@@ -86,9 +82,11 @@ $cityStmt->close(); // Close statement
                 <div class="col-md-3">
                     <input type="date" class="form-control" id="filterDate">
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <input type="text" class="form-control" id="filterLocation" placeholder="Location...">
-                    <button class="btn btn-agri mt-2" onclick="loadFarmers(1)">Apply Filters</button>
+                </div>
+                <div class="col-md-1">
+                    <button class="btn btn-agri" onclick="loadFarmers(1)">Search</button>
                 </div>
             </div>
             
@@ -552,6 +550,21 @@ $cityStmt->close(); // Close statement
             margin-bottom: 10px;
             border: 1px solid #dee2e6;
         }
+        
+        /* Green Pagination Styling */
+        .pagination .page-link {
+            color: #4CAF50;
+        }
+        .pagination .page-item.active .page-link {
+            background-color: #4CAF50;
+            border-color: #4CAF50;
+            color: white;
+        }
+        .pagination .page-link:hover {
+            background-color: #C8E6C9;
+            border-color: #4CAF50;
+            color: #4CAF50;
+        }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -637,7 +650,7 @@ $cityStmt->close(); // Close statement
                                 <td>${farmer.email}</td>
                                 <td>${farmer.phone}</td>
                                 <td>${new Date(farmer.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
-                                <td>${farmer.farm_location_text || 'N/A'}</td>
+                                <td>${farmer.farm_full_address || 'N/A'}</td>
                                 <td><span class="badge ${farmer.cbn_approved == 1 ? 'bg-success' : farmer.cbn_approved == 2 ? 'bg-danger' : 'bg-warning'}">${farmer.cbn_approved == 1 ? 'Approved' : farmer.cbn_approved == 2 ? 'Disabled' : 'Pending'}</span></td>
                                 <td>
                                     <div class="action-buttons">

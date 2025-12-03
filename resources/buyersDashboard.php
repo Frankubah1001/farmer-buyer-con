@@ -100,7 +100,7 @@ include 'buyerheader.php';
             align-items: center; 
             gap: 8px;
           ">
-            <i class="fas fa-chart-bar"></i> Top 5 Farm Produce Ordered (Quantity)
+            <i class="fas fa-chart-bar"></i> Farm Produce Ordered (Quantity)
           </div>
           <div class="chart-area" style="height: 250px;">
             <canvas id="mostProduceChart"></canvas>

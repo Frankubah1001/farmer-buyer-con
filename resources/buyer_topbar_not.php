@@ -27,20 +27,21 @@ if (isset($_SESSION['email'])) {
         $row_count = mysqli_fetch_assoc($result_count);
         $response['orderCount'] = $row_count['orderCount'];
 
-       // Get recent unread orders matching the dropdown statuses
-               $sql_recent = "SELECT order_id, order_date, total_amount, order_status 
-               FROM orders 
-               WHERE buyer_id = ? 
-               AND notification_status = 'unread' 
-               AND order_status IN ('Order Sent', 'Processing Produce For Delivery', 'Make Payment', 'Produce On The Way', 'Produce Delivered & Confirmed', 'Cancel Order') 
-               ORDER BY order_date DESC 
-               LIMIT ?";
+       // Get recent unread orders with produce details
+                $sql_recent = "SELECT o.order_id, o.order_date, o.total_amount, o.order_status, o.quantity, pl.produce
+                FROM orders o
+                LEFT JOIN produce_listings pl ON o.produce_id = pl.prod_id
+                WHERE o.buyer_id = ? 
+                AND o.notification_status = 'unread' 
+                AND o.order_status IN ('Order Sent', 'Processing Produce For Delivery', 'Make Payment', 'Produce On The Way', 'Produce Delivered & Confirmed', 'Cancel Order') 
+                ORDER BY o.order_date DESC 
+                LIMIT ?";
 
-                $stmt_recent = mysqli_prepare($conn, $sql_recent);
-                mysqli_stmt_bind_param($stmt_recent, "ii", $buyer_id, $limit);
-                mysqli_stmt_execute($stmt_recent);
-                $result_recent = mysqli_stmt_get_result($stmt_recent);
-                $recentOrders = [];
+                 $stmt_recent = mysqli_prepare($conn, $sql_recent);
+                 mysqli_stmt_bind_param($stmt_recent, "ii", $buyer_id, $limit);
+                 mysqli_stmt_execute($stmt_recent);
+                 $result_recent = mysqli_stmt_get_result($stmt_recent);
+                 $recentOrders = [];
 
 while ($row = mysqli_fetch_assoc($result_recent)) {
     $recentOrders[] = $row;

@@ -1,4 +1,7 @@
 <?php
+// Include session timeout check
+require_once 'session_check.php';
+
 // incentives.php
 $active = 'incentives';
 ?>

@@ -106,29 +106,78 @@ function getFarmersChart($conn) {
 // Produce Demand Ranking Chart
 function getProduceChart($conn) {
     try {
-        $result = $conn->query("
+        $period = isset($_GET['period']) ? $_GET['period'] : 'month';
+        
+        $labels = [];
+        $dateFormat = '';
+        $startDate = '';
+        $endDate = '';
+
+        if ($period == 'month') {
+            $startDate = date('Y-m-01');
+            $endDate = date('Y-m-t');
+            $dateFormat = '%d'; // Day of month (01-31)
+            
+            $daysInMonth = date('t');
+            for ($i = 1; $i <= $daysInMonth; $i++) {
+                $labels[] = sprintf("%02d", $i);
+            }
+        } elseif ($period == 'last_month') {
+            $startDate = date('Y-m-01', strtotime('last month'));
+            $endDate = date('Y-m-t', strtotime('last month'));
+            $dateFormat = '%d';
+            
+            $daysInMonth = date('t', strtotime('last month'));
+            for ($i = 1; $i <= $daysInMonth; $i++) {
+                $labels[] = sprintf("%02d", $i);
+            }
+        } elseif ($period == 'quarter') {
+            // Current Quarter
+            $currentMonth = date('n');
+            $startMonth = floor(($currentMonth - 1) / 3) * 3 + 1;
+            $startDate = date('Y') . '-' . sprintf("%02d", $startMonth) . '-01';
+            $endDate = date('Y-m-t'); 
+            $dateFormat = '%b'; // Month name
+            
+            for ($i = 0; $i < 3; $i++) {
+                $m = $startMonth + $i;
+                $labels[] = date('M', mktime(0, 0, 0, $m, 1));
+            }
+        } else {
+            // Default to month
+            $startDate = date('Y-m-01');
+            $endDate = date('Y-m-t');
+            $dateFormat = '%d';
+            $daysInMonth = date('t');
+            for ($i = 1; $i <= $daysInMonth; $i++) {
+                $labels[] = sprintf("%02d", $i);
+            }
+        }
+
+        $sql = "
             SELECT p.produce, 
-                   MONTHNAME(o.order_date) as month, 
+                   DATE_FORMAT(o.order_date, '$dateFormat') as time_unit, 
                    COUNT(o.order_id) as order_count
             FROM produce_listings p
             JOIN orders o ON p.prod_id = o.produce_id
-            WHERE o.order_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
-            GROUP BY p.produce, MONTH(o.order_date)
-            ORDER BY MONTH(o.order_date)
-        ");
+            WHERE o.order_date >= '$startDate' AND o.order_date <= '$endDate 23:59:59'
+            GROUP BY p.produce, time_unit
+            ORDER BY o.order_date
+        ";
+
+        $result = $conn->query($sql);
         $data = $result->fetch_all(MYSQLI_ASSOC);
         $result->free();
 
-        $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
         $datasets = [];
         $produce_types = array_unique(array_column($data, 'produce'));
 
         foreach ($produce_types as $produce) {
             $counts = [];
-            foreach ($labels as $month) {
+            foreach ($labels as $label) {
                 $found = false;
                 foreach ($data as $row) {
-                    if ($row['produce'] == $produce && strpos($row['month'], $month) === 0) {
+                    if ($row['produce'] == $produce && $row['time_unit'] == $label) {
                         $counts[] = $row['order_count'];
                         $found = true;
                         break;
@@ -136,11 +185,17 @@ function getProduceChart($conn) {
                 }
                 if (!$found) $counts[] = 0;
             }
+            // Generate a consistent color based on produce name string
+            $hash = md5($produce);
+            $r = hexdec(substr($hash, 0, 2));
+            $g = hexdec(substr($hash, 2, 2));
+            $b = hexdec(substr($hash, 4, 2));
+
             $datasets[] = [
                 'label' => $produce,
                 'data' => $counts,
-                'borderColor' => 'rgba(' . rand(0, 255) . ',' . rand(0, 255) . ',' . rand(0, 255) . ', 1)',
-                'backgroundColor' => 'rgba(' . rand(0, 255) . ',' . rand(0, 255) . ',' . rand(0, 255) . ', 0.1)',
+                'borderColor' => "rgba($r, $g, $b, 1)",
+                'backgroundColor' => "rgba($r, $g, $b, 0.1)",
                 'tension' => 0.4
             ];
         }

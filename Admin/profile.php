@@ -1,4 +1,7 @@
 <?php
+// Include session timeout check
+require_once 'session_check.php';
+
 // profile.php - Admin Management with Enhanced View Details Modal
 // profile.php - Admin Management with Enhanced View Details Modal
 $active = 'profile';

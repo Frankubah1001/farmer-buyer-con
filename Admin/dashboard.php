@@ -1,4 +1,7 @@
 <?php
+// Include session timeout check
+require_once 'session_check.php';
+
 // dashboard.php
 $active = 'dashboard';
 ?>
@@ -164,7 +167,8 @@ $active = 'dashboard';
 
         // Fetch Farmers Chart
         function fetchFarmersChart() {
-            fetch('api/api.php?action=get_farmers_chart')
+            const days = document.getElementById('farmersChartFilter').value;
+            fetch(`api/api.php?action=get_farmers_chart&days=${days}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
@@ -180,7 +184,8 @@ $active = 'dashboard';
 
         // Fetch Produce Chart
         function fetchProduceChart() {
-            fetch('api/api.php?action=get_produce_chart')
+            const period = document.getElementById('produceChartFilter').value;
+            fetch(`api/api.php?action=get_produce_chart&period=${period}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
@@ -193,6 +198,10 @@ $active = 'dashboard';
                 })
                 .catch(error => console.error('Error fetching produce chart:', error));
         }
+
+        // Event Listeners for Filters
+        document.getElementById('farmersChartFilter').addEventListener('change', fetchFarmersChart);
+        document.getElementById('produceChartFilter').addEventListener('change', fetchProduceChart);
 
         // Fetch Frequently Purchased Produce Table
         function fetchFrequentlyPurchasedProduce() {

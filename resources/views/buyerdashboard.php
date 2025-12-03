@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 session_start();
-include 'DBcon.php';
+include '../DBcon.php';
 
 // Check for buyer ID
 if (!isset($_SESSION['buyer_id'])) {
@@ -35,15 +35,14 @@ while ($recent_order_data = $recent_order_result->fetch_assoc()) {
 }
 $recent_order_stmt->close();
 
-// 2. Top Farm Produce Ordered for Chart (Fetching top 5)
-// MODIFIED QUERY to get data for the bar chart
+// 2. All Farm Produce Ordered for Chart (Fetching all produce)
+// MODIFIED QUERY to get data for the bar chart - shows all produce ordered
 $top_produce_query = "SELECT pl.produce, SUM(o.quantity) AS total_quantity
                       FROM orders o
                       JOIN produce_listings pl ON o.produce_id = pl.prod_id
                       WHERE o.buyer_id = ?
                       GROUP BY pl.produce
-                      ORDER BY total_quantity DESC
-                      LIMIT 5"; 
+                      ORDER BY total_quantity DESC";
 $top_produce_stmt = $conn->prepare($top_produce_query);
 $top_produce_stmt->bind_param("i", $buyer_id);
 $top_produce_stmt->execute();

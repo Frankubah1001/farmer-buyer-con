@@ -27,8 +27,16 @@ if (isset($_SESSION['email'])) {
         $row_count = mysqli_fetch_assoc($result_count);
         $response['orderCount'] = $row_count['orderCount'];
 
-        // Get recent unread orders
-        $sql_recent = "SELECT order_id, order_date, total_amount, order_status FROM orders WHERE user_id = ? AND notification_status = 'unread' ORDER BY order_date DESC LIMIT ?";
+        // Get recent unread orders with produce details and buyer info
+        $sql_recent = "SELECT o.order_id, o.order_date, o.total_amount, o.order_status, o.quantity, 
+                       pl.produce, b.first_name as buyer_first_name, b.last_name as buyer_last_name
+                FROM orders o
+                LEFT JOIN produce_listings pl ON o.produce_id = pl.prod_id
+                LEFT JOIN buyers b ON o.buyer_id = b.buyer_id
+                WHERE o.user_id = ? 
+                AND o.notification_status = 'unread' 
+                ORDER BY o.order_date DESC 
+                LIMIT ?";
         $stmt_recent = mysqli_prepare($conn, $sql_recent);
         mysqli_stmt_bind_param($stmt_recent, "ii", $user_id, $limit);
         mysqli_stmt_execute($stmt_recent);

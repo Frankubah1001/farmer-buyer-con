@@ -151,6 +151,31 @@
             transition: width 0.3s ease;
             width: 0%;
         }
+        /* Validation Styles */
+        .is-invalid {
+            border-color: #e74a3b !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23e74a3b' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5zM6 8.2a.3.3 0 110-.6.3.3 0 010 .6z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        .is-valid {
+            border-color: #1cc88a !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%231cc88a' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        .invalid-feedback {
+            display: none;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 80%;
+            color: #e74a3b;
+        }
+        .is-invalid ~ .invalid-feedback {
+            display: block;
+        }
     </style>
 </head>
 <body class="bg-gradient-primary">
@@ -189,24 +214,28 @@
                                 </div>
                             </div>
 
-                            <form id="registerForm" class="user" enctype="multipart/form-data">
+                            <form id="registerForm" class="user" enctype="multipart/form-data" novalidate>
                                 <div class="form-step active" id="step1">
                                     <div class="form-section">
                                         <h5 class="section-title"><i class="fas fa-user me-2 mr-2"></i>Personal Information</h5>
                                         <div class="form-group row">
                                             <div class="col-sm-6 mb-3 mb-sm-0">
                                                 <input type="text" class="form-control" name="first_name" placeholder="First Name" required>
+                                                <div class="invalid-feedback">First name is required (min 2 chars).</div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <input type="text" class="form-control" name="last_name" placeholder="Last Name" required>
+                                                <div class="invalid-feedback">Last name is required (min 2 chars).</div>
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <input type="email" class="form-control" name="email" placeholder="Email Address" required>
+                                            <div class="invalid-feedback">Please enter a valid email address.</div>
                                         </div>
                                         <div class="form-group row">
                                             <div class="col-sm-6 mb-3 mb-sm-0">
                                                 <input type="text" class="form-control" name="phone" placeholder="Phone Number" required>
+                                                <div class="invalid-feedback">Please enter a valid 11-digit phone number.</div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <select class="form-control" name="gender" required>
@@ -214,15 +243,17 @@
                                                     <option value="Male">Male</option>
                                                     <option value="Female">Female</option>
                                                 </select>
+                                                <div class="invalid-feedback">Please select your gender.</div>
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <textarea class="form-control" name="address" placeholder="Enter Your Contact Address" required rows="3"></textarea>
+                                            <div class="invalid-feedback">Address is required.</div>
                                         </div>
                                         <div class="form-row">
                                             <div class="form-group col-sm-6">
                                                 <select name="state_id" id="state" class="form-control" required>
-                                                    <option selected disabled>Choose State</option>
+                                                    <option selected disabled value="">Choose State</option>
                                                     <?php
                                                     $query = "SELECT state_id, state_name FROM states";
                                                     $result = mysqli_query($conn, $query);
@@ -231,11 +262,13 @@
                                                     }
                                                     ?>
                                                 </select>
+                                                <div class="invalid-feedback">Please select a state.</div>
                                             </div>
                                             <div class="form-group col-sm-6">
                                                 <select id="city" name="city_id" class="form-control" required>
                                                     <option value="">Select LGA</option>
                                                 </select>
+                                                <div class="invalid-feedback">Please select a Local Government Area.</div>
                                             </div>
                                         </div>
                                     </div>
@@ -250,13 +283,16 @@
                                         <div class="form-group row">
                                             <div class="col-sm-6 mb-3 mb-sm-0">
                                                 <input type="text" class="form-control" name="farm_name" placeholder="Farm Name">
+                                                <div class="invalid-feedback">Farm name is required.</div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <input type="number" step="0.01" class="form-control" name="farm_size" placeholder="Farm Size (hectares)">
+                                                <div class="invalid-feedback">Please enter a valid farm size.</div>
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <textarea class="form-control" name="farm_full_address" placeholder="Farm Full Address" rows="3"></textarea>
+                                            <div class="invalid-feedback">Farm address is required.</div>
                                         </div>
                                         <div class="form-group row">
                                             <div class="col-sm-6 mb-3 mb-sm-0">
@@ -266,9 +302,11 @@
                                                     <option value="Leased">Leased</option>
                                                     <option value="Rented">Rented</option>
                                                 </select>
+                                                <div class="invalid-feedback">Please select ownership type.</div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <input type="number" class="form-control" name="farming_experience" placeholder="Farming Experience (years)">
+                                                <div class="invalid-feedback">Please enter years of experience.</div>
                                             </div>
                                         </div>
 
@@ -283,14 +321,16 @@
                                                     <option value="Agroforestry">Agroforestry Farmer</option>
                                                     <option value="Mixed">Mixed Crop-Livestock Farmer</option>
                                                 </select>
+                                                <div class="invalid-feedback">Please select farmer type.</div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <select class="form-control" name="primary_produce" id="primary_produce" required>
                                                     <option value="" disabled selected>Select Primary Produce</option>
-                                                    </select>
+                                                </select>
+                                                <div class="invalid-feedback">Please select primary produce.</div>
                                             </div>
                                         </div>
-                                        </div>
+                                    </div>
                                     <div class="form-section">
                                         <h5 class="section-title"><i class="fas fa-id-card me-2 mr-2"></i>Identification</h5>
                                         <div class="form-group row">
@@ -299,6 +339,7 @@
                                             </div>
                                             <div class="col-sm-6">
                                                 <input type="text" class="form-control" name="nin" placeholder="NIN" required> 
+                                                <div class="invalid-feedback">NIN is required.</div>
                                             </div>
                                         </div>
                                     </div>
@@ -315,11 +356,13 @@
                                             <label class="form-label">Profile Picture <span class="text-danger">*</span></label>
                                             <input type="file" class="form-control" name="profile_picture" accept="image/jpeg,image/png" required>
                                             <small class="file-upload-info">JPG or PNG, max 2MB</small>
+                                            <div class="invalid-feedback">Profile picture is required (JPG/PNG).</div>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">NIN Document <span class="text-danger">*</span></label>
                                             <input type="file" class="form-control" name="national_id_doc" accept="image/jpeg,image/png,application/pdf" required>
                                             <small class="file-upload-info">JPG, PNG or PDF, max 5MB</small>
+                                            <div class="invalid-feedback">NIN document is required.</div>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">CAC Document</label>
@@ -344,9 +387,11 @@
                                         <div class="form-group row">
                                             <div class="col-sm-6 mb-3 mb-sm-0">
                                                 <input type="password" class="form-control" name="password" placeholder="Password" required>
+                                                <div class="invalid-feedback">Password must be at least 8 characters, include uppercase, lowercase, number, and symbol.</div>
                                             </div>
                                             <div class="col-sm-6">
                                                 <input type="password" class="form-control" name="repeat_password" placeholder="Repeat Password" required>
+                                                <div class="invalid-feedback">Passwords do not match.</div>
                                             </div>
                                         </div>
                                         <div class="alert alert-info">
@@ -445,6 +490,7 @@
         $('#farmer_type').on('change', function() {
             const selectedType = $(this).val();
             updateProduceDropdown(selectedType);
+            validateField(this); // Re-validate
         });
 
         // Update progress bar
@@ -477,15 +523,189 @@
             document.getElementById('step' + stepNumber).classList.add('active');
         }
 
-        // Next step
-        function nextStep() {
-            if (validateStep(currentStep)) {
-                if (currentStep < totalSteps) {
-                    currentStep++;
-                    showStep(currentStep);
-                    updateStepIndicators();
-                    updateProgressBar();
+        // --- VALIDATION LOGIC ---
+
+        function validateField(input) {
+            const name = input.name;
+            const value = input.value.trim();
+            const type = input.type;
+            let isValid = true;
+
+            // Reset status
+            input.classList.remove('is-invalid', 'is-valid');
+            
+            // Restore original error message if exists
+            let feedback = input.nextElementSibling;
+            while (feedback && !feedback.classList.contains('invalid-feedback')) {
+                feedback = feedback.nextElementSibling;
+            }
+            if (feedback && feedback.hasAttribute('data-original-text')) {
+                feedback.textContent = feedback.getAttribute('data-original-text');
+            }
+
+            // Required check
+            if (input.hasAttribute('required') && !value && type !== 'file') {
+                isValid = false;
+            }
+
+            // Specific checks
+            if (isValid) {
+                switch (name) {
+                    case 'first_name':
+                    case 'last_name':
+                        if (value.length < 2) isValid = false;
+                        break;
+                    case 'email':
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!emailRegex.test(value)) isValid = false;
+                        break;
+                    case 'phone':
+                        const phoneRegex = /^\d{11}$/;
+                        if (!phoneRegex.test(value)) isValid = false;
+                        break;
+                    case 'password':
+                        // Min 8 chars, 1 upper, 1 lower, 1 number, 1 symbol
+                        const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+                        if (!passRegex.test(value)) isValid = false;
+                        break;
+                    case 'repeat_password':
+                        const pass = document.querySelector('input[name="password"]').value;
+                        if (value !== pass) isValid = false;
+                        break;
                 }
+            }
+            
+            // File validation
+            if (type === 'file' && input.hasAttribute('required')) {
+                if (input.files.length === 0) isValid = false;
+            }
+
+            if (isValid) {
+                input.classList.add('is-valid');
+            } else {
+                input.classList.add('is-invalid');
+            }
+            return isValid;
+        }
+
+        function showFieldError(inputName, message) {
+            const input = document.querySelector(`[name="${inputName}"]`);
+            if (input) {
+                input.classList.remove('is-valid');
+                input.classList.add('is-invalid');
+                let feedback = input.nextElementSibling;
+                while (feedback && !feedback.classList.contains('invalid-feedback')) {
+                    feedback = feedback.nextElementSibling;
+                }
+                if (feedback) {
+                    // Save original text if not saved yet
+                    if (!feedback.hasAttribute('data-original-text')) {
+                        feedback.setAttribute('data-original-text', feedback.textContent);
+                    }
+                    feedback.textContent = message;
+                }
+            }
+        }
+
+        function checkAvailability(field, value) {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    url: 'check_availability.php',
+                    method: 'POST',
+                    data: { field: field, value: value },
+                    dataType: 'json',
+                    success: function(response) {
+                        resolve(response.exists);
+                    },
+                    error: function() {
+                        console.error('Availability check failed');
+                        resolve(false); // Assume false on error to avoid blocking
+                    }
+                });
+            });
+        }
+
+        // Attach listeners to all inputs
+        document.querySelectorAll('input, select, textarea').forEach(input => {
+            input.addEventListener('input', () => validateField(input));
+            input.addEventListener('blur', () => validateField(input));
+            input.addEventListener('change', () => validateField(input));
+            
+            // Initialize data-original-text
+            let feedback = input.nextElementSibling;
+            while (feedback && !feedback.classList.contains('invalid-feedback')) {
+                feedback = feedback.nextElementSibling;
+            }
+            if (feedback) {
+                feedback.setAttribute('data-original-text', feedback.textContent);
+            }
+        });
+
+        // Next step
+        async function nextStep() {
+            // 1. Client-side validation
+            if (!validateStep(currentStep)) {
+                return;
+            }
+
+            // 2. Database validation (Async)
+            const nextBtns = document.querySelectorAll('.btn-navigation');
+            nextBtns.forEach(btn => btn.disabled = true);
+            document.body.style.cursor = 'wait';
+
+            let dbValid = true;
+
+            try {
+                if (currentStep === 1) {
+                    const email = $('input[name="email"]').val();
+                    const phone = $('input[name="phone"]').val();
+
+                    // Check Email
+                    if (await checkAvailability('email', email)) {
+                        showFieldError('email', 'Email is already registered.');
+                        dbValid = false;
+                    }
+
+                    // Check Phone
+                    if (await checkAvailability('phone', phone)) {
+                        showFieldError('phone', 'Phone number is already registered.');
+                        dbValid = false;
+                    }
+                } else if (currentStep === 2) {
+                    const nin = $('input[name="nin"]').val();
+                    const cac = $('input[name="cac_number"]').val();
+
+                    // Check NIN
+                    if (await checkAvailability('nin', nin)) {
+                        showFieldError('nin', 'NIN is already registered.');
+                        dbValid = false;
+                    }
+
+                    // Check CAC (if provided)
+                    if (cac && await checkAvailability('cac_number', cac)) {
+                        showFieldError('cac_number', 'CAC Number is already registered.');
+                        dbValid = false;
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+            } finally {
+                nextBtns.forEach(btn => btn.disabled = false);
+                document.body.style.cursor = 'default';
+            }
+
+            if (!dbValid) {
+                const firstInvalid = document.querySelector('.is-invalid');
+                if (firstInvalid) firstInvalid.focus();
+                return;
+            }
+
+            // 3. Proceed
+            if (currentStep < totalSteps) {
+                currentStep++;
+                showStep(currentStep);
+                updateStepIndicators();
+                updateProgressBar();
             }
         }
 
@@ -504,54 +724,20 @@
             const currentStepElement = document.getElementById('step' + step);
             const inputs = currentStepElement.querySelectorAll('input[required], select[required], textarea[required]');
             
-            let isValid = true;
+            let isStepValid = true;
             inputs.forEach(input => {
-                // Check if the input is required and empty
-                if (input.hasAttribute('required') && !input.value.trim()) {
-                    isValid = false;
-                    input.classList.add('is-invalid');
-                } else {
-                    input.classList.remove('is-invalid');
+                if (!validateField(input)) {
+                    isStepValid = false;
                 }
             });
 
-            // Special validation for step 4 (passwords)
-            if (step === 4) {
-                const password = document.querySelector('#step4 input[name="password"]').value;
-                const repeatPassword = document.querySelector('#step4 input[name="repeat_password"]').value;
-                
-                // Also check if they are required and empty, though general validation should catch this
-                if (!password || !repeatPassword) {
-                     // Passwords required and empty, handled by general loop
-                } else if (password !== repeatPassword) {
-                    isValid = false;
-                    document.querySelector('#step4 input[name="repeat_password"]').classList.add('is-invalid');
-                    alert('Passwords do not match!');
-                } else {
-                    document.querySelector('#step4 input[name="repeat_password"]').classList.remove('is-invalid');
-                }
-            }
-            
-            // Special validation for file uploads in Step 3
-            if (step === 3) {
-                 const requiredFiles = ['profile_picture', 'national_id_doc'];
-                 requiredFiles.forEach(name => {
-                    const fileInput = document.querySelector(`input[name="${name}"][required]`);
-                    if (fileInput && fileInput.files.length === 0) {
-                        isValid = false;
-                        fileInput.classList.add('is-invalid');
-                    } else if (fileInput) {
-                        fileInput.classList.remove('is-invalid');
-                    }
-                 });
+            if (!isStepValid) {
+                // Focus first invalid element
+                const firstInvalid = currentStepElement.querySelector('.is-invalid');
+                if (firstInvalid) firstInvalid.focus();
             }
 
-
-            if (!isValid) {
-                alert('Please fill in all required fields before proceeding.');
-            }
-
-            return isValid;
+            return isStepValid;
         }
 
         // Populate city dropdown
@@ -592,14 +778,12 @@
 
                 // Validate all steps before submission
                 for (let step = 1; step <= totalSteps; step++) {
-                    // We only validate the final step on submission, relying on 'nextStep()' for previous validation.
-                    // To ensure all steps are valid before submission, you might want to force check all:
                     if (!validateStep(step)) {
                         currentStep = step;
                         showStep(currentStep);
                         updateStepIndicators();
                         updateProgressBar();
-                        alert('Please complete all required fields before submitting.');
+                        alert('Please fix errors in step ' + step + ' before submitting.');
                         return;
                     }
                 }
@@ -632,6 +816,8 @@
                             $('#city').html('<option value="">Select LGA</option>');
                             // Reset produce dropdown
                             updateProduceDropdown(null); 
+                            // Remove validation classes
+                            $('.is-valid, .is-invalid').removeClass('is-valid is-invalid');
                             // Reset to first step
                             currentStep = 1;
                             showStep(currentStep);
