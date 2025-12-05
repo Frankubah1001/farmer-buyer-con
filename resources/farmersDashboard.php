@@ -123,16 +123,19 @@ if (isset($_SESSION['cbn_approved'])) {
                         </div>
                     </div>
                 </div>
-
-                <!-- Total Orders Card -->
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card border-left-dark shadow h-100 py-2">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                        Total Orders</div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="total_order"></div>
+            </div>
+        </div>
+         <div class="container-fluid">
+        <div class="row">
+            <!-- Total Orders Card -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-dark shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    Total Orders</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="total_order"></div>
                                 </div>
                                 <div class="col-auto">
                                     <i class="fas fa-atom fa-2x text-gray-300"></i>
@@ -141,10 +144,7 @@ if (isset($_SESSION['cbn_approved'])) {
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Second Row -->
-            <div class="row">
+                       
                 <!-- Total Number Of Farm Products Card -->
                 <div class="col-xl-3 col-md-6 mb-4">
                     <div class="card border-left-secondary shadow h-100 py-2">
@@ -199,8 +199,10 @@ if (isset($_SESSION['cbn_approved'])) {
                     </div>
                 </div>
             </div>
-
+        </div>
+    </div>
             <!-- Most Recent Transactions Table -->
+              <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
                     <div class="card shadow mb-4">
@@ -259,7 +261,7 @@ if (isset($_SESSION['cbn_approved'])) {
 
         </div>
     </div>
-
+</div>
     <?php include 'footer.php'; ?>
 </div>
 

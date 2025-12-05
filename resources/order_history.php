@@ -18,6 +18,17 @@ include 'buyerheader.php';
         border-bottom: 3px solid #8BC34A; /* Light Green accent border */
         display: inline-block;
     }
+/* Force table to scroll horizontally on mobile */
+.table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+    table.table {
+        width: 1000px; /* Minimum width to avoid column wrapping */
+    }
+}
 
     /* Filter Card */
     .filter-card {

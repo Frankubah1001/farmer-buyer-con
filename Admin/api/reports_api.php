@@ -14,7 +14,10 @@ if (!isset($_SESSION['cbn_user_id'])) {
 // $database = new Database();
 // $conn = $database->getConnection();
 
-$action = isset($_GET['action']) ? $_GET['action'] : (isset($_POST['action']) ? $_POST['action'] : 'get_reports');
+$input = file_get_contents('php://input');
+$jsonData = json_decode($input, true);
+
+$action = isset($_GET['action']) ? $_GET['action'] : (isset($_POST['action']) ? $_POST['action'] : (isset($jsonData['action']) ? $jsonData['action'] : 'get_reports'));
 
 try {
     switch ($action) {
@@ -31,11 +34,11 @@ try {
             break;
         
         case 'resolve_report':
-            resolveReport($conn);
+            resolveReport($conn, $jsonData);
             break;
         
         case 'delete_report':
-            deleteReport($conn);
+            deleteReport($conn, $jsonData);
             break;
         
         case 'get_farmers':
@@ -280,13 +283,9 @@ function getStats($conn) {
     ]);
 }
 
-function resolveReport($conn) {
-    // Read JSON input
-    $input = file_get_contents('php://input');
-    $data = json_decode($input, true);
-    
+function resolveReport($conn, $data) {
     // Log for debugging
-    error_log("Resolve Report Input: " . $input);
+    error_log("Resolve Report Input: " . json_encode($data));
     
     $report_id = isset($data['report_id']) ? (int)$data['report_id'] : 0;
     $resolution_action = isset($data['resolution_action']) ? trim($data['resolution_action']) : '';
@@ -402,13 +401,9 @@ function resolveReport($conn) {
     $stmt->close();
 }
 
-function deleteReport($conn) {
-    // Read JSON input
-    $input = file_get_contents('php://input');
-    $data = json_decode($input, true);
-    
+function deleteReport($conn, $data) {
     // Log for debugging
-    error_log("Delete Report Input: " . $input);
+    error_log("Delete Report Input: " . json_encode($data));
     
     $report_id = isset($data['report_id']) ? (int)$data['report_id'] : 0;
     

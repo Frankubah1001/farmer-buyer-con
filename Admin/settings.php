@@ -128,7 +128,7 @@ $active = 'settings';
                         <p class="small text-muted mb-3">Manage categories for price ranges and farmer produce types.</p>
                         <div class="mb-3">
                             <input type="text" class="form-control" id="newProduceCategory" placeholder="Add new category (e.g., Cassava)">
-                            <button class="btn btn-agri btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#addProduceModal" onclick="prepareAddModal('produce', 'Add Produce Category', 'addProduceModal')">Add Category</button>
+                            <button class="btn btn-agri btn-sm mt-2" onclick="addProduceCategory()">Add Category</button>
                         </div>
                         <ul class="list-group" id="produceCategoriesList">
                             <!-- Dynamically populated -->
@@ -147,7 +147,7 @@ $active = 'settings';
                         <p class="small text-muted mb-3">Manage buyer business types.</p>
                         <div class="mb-3">
                             <input type="text" class="form-control" id="newBusinessType" placeholder="Add new type (e.g., Distributor)">
-                            <button class="btn btn-agri btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#addBusinessModal" onclick="prepareAddModal('business', 'Add Business Type', 'addBusinessModal')">Add Type</button>
+                            <button class="btn btn-agri btn-sm mt-2" onclick="addBusinessType()">Add Type</button>
                         </div>
                         <ul class="list-group" id="businessTypesList">
                             <!-- Dynamically populated -->
@@ -168,7 +168,7 @@ $active = 'settings';
                         <p class="small text-muted mb-3">Manage roles and permissions.</p>
                         <div class="mb-3">
                             <input type="text" class="form-control" id="newRoleName" placeholder="Add new role (e.g., Auditor)">
-                            <button class="btn btn-agri btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#addRoleModal" onclick="prepareAddModal('role', 'Add Role', 'addRoleModal')">Add Role</button>
+                            <button class="btn btn-agri btn-sm mt-2" onclick="addRole()">Add Role</button>
                         </div>
                         <ul class="list-group" id="rolesList">
                             <!-- Dynamically populated -->
@@ -187,9 +187,30 @@ $active = 'settings';
                         <p class="small text-muted mb-3">Customize order statuses.</p>
                         <div class="mb-3">
                             <input type="text" class="form-control" id="newStatusName" placeholder="Add new status (e.g., In Transit)">
-                            <button class="btn btn-agri btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#addOrderStatusModal" onclick="prepareAddModal('orderStatus', 'Add Order Status', 'addOrderStatusModal')">Add Status</button>
+                            <button class="btn btn-agri btn-sm mt-2" onclick="addOrderStatus()">Add Status</button>
                         </div>
                         <ul class="list-group" id="orderStatusesList">
+                            <!-- Dynamically populated -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Admin Designations -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-briefcase me-2"></i>Admin Designations</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="small text-muted mb-3">Manage admin designations/titles.</p>
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="newDesignationName" placeholder="Add new designation (e.g., Operations Manager)">
+                            <button class="btn btn-agri btn-sm mt-2" onclick="addDesignation()">Add Designation</button>
+                        </div>
+                        <ul class="list-group" id="designationsList">
                             <!-- Dynamically populated -->
                         </ul>
                     </div>
@@ -298,6 +319,32 @@ $active = 'settings';
             </div>
         </div>
 
+        <div class="modal fade" id="editDesignationModal" tabindex="-1" aria-labelledby="editDesignationModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editDesignationModalLabel">Edit Designation</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editDesignationForm">
+                            <input type="hidden" id="editDesignationItemType" value="designation">
+                            <input type="hidden" id="editDesignationOriginalName">
+                            <div class="mb-3">
+                                <label for="editDesignationItemName" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="editDesignationItemName" required>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-agri" onclick="saveEditItem('designation', 'editDesignationModal', 'editDesignationItemName', 'editDesignationOriginalName')">Save</button>
+                    </div>
+                </div>
+            </div>
+            <?php include 'footer.php'; ?>
+        </div>
+
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
             // Wait for DOM to be fully loaded
@@ -324,48 +371,72 @@ $active = 'settings';
                     logoutBtn.addEventListener('click', function(e) {
                         e.preventDefault();
                         if (confirm('Are you sure you want to sign out?')) {
-                            alert('You have been signed out successfully.');
-                            
+                            window.location.href = 'signout.php';
                         }
-                        windows.location('signout.php');
                     });
                 }
 
-                // Settings module functions (demo: use localStorage for persistence; prod: DB)
-                let settingsData = JSON.parse(localStorage.getItem('agriAdminSettings')) || {
-                    general: { siteName: 'AgriAdmin Platform', currency: '₦', timezone: 'Africa/Lagos', dateFormat: 'dd/mm/yyyy' },
-                    notifications: { smtpHost: 'smtp.gmail.com', smtpPort: '587', smtpEmail: 'noreply@agriadmin.com', enableSms: false },
-                    produceCategories: ['Tomatoes', 'Rice', 'Maize', 'Beans', 'Yam'],
-                    businessTypes: ['Wholesaler', 'Retailer', 'Exporter', 'Processor'],
-                    roles: ['Super Admin', 'Moderator', 'Viewer'],
-                    orderStatuses: ['Pending', 'Shipped', 'Completed', 'Cancelled'],
-                    templates: ['Fraud Warning', 'Quality Issue'],
-                    incentiveCategories: ['Loans', 'Farm Tools', 'Grants'],
-                    feeFormulas: ['Base KM Rate', 'Flat Trip Rate']
-                };
+                // API Helper Function
+                async function apiCall(action, data = null, method = 'GET') {
+                    const url = `api/settings_api.php?action=${action}`;
+                    const options = {
+                        method: method,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    };
+                    
+                    if (data && method === 'POST') {
+                        options.body = JSON.stringify(data);
+                    }
+                    
+                    try {
+                        const response = await fetch(url, options);
+                        const result = await response.json();
+                        return result;
+                    } catch (error) {
+                        console.error('API Error:', error);
+                        return { success: false, message: 'Network error occurred' };
+                    }
+                }
 
                 // Load initial data
                 loadSettingsData();
 
-                // General Settings Save
-                window.saveGeneralSettings = function() {
-                    settingsData.general.siteName = document.getElementById('siteName').value;
-                    settingsData.general.currency = document.getElementById('currency').value;
-                    settingsData.general.timezone = document.getElementById('timezone').value;
-                    settingsData.general.dateFormat = document.getElementById('dateFormat').value;
-                    saveAndAlert('General settings saved!');
+                // ============ GENERAL SETTINGS ============
+                window.saveGeneralSettings = async function() {
+                    const data = {
+                        siteName: document.getElementById('siteName').value,
+                        currency: document.getElementById('currency').value,
+                        timezone: document.getElementById('timezone').value,
+                        dateFormat: document.getElementById('dateFormat').value
+                    };
+                    
+                    const result = await apiCall('save_general_settings', data, 'POST');
+                    if (result.success) {
+                        alert(result.message || 'General settings saved successfully!');
+                    } else {
+                        alert('Error: ' + (result.message || 'Failed to save settings'));
+                    }
                 }
 
-                // Notification Settings Save
-                window.saveNotificationSettings = function() {
-                    settingsData.notifications.smtpHost = document.getElementById('smtpHost').value;
-                    settingsData.notifications.smtpPort = document.getElementById('smtpPort').value;
-                    settingsData.notifications.smtpEmail = document.getElementById('smtpEmail').value;
-                    settingsData.notifications.enableSms = document.getElementById('enableSms').checked;
-                    if (settingsData.notifications.enableSms) {
-                        settingsData.notifications.smsApiKey = document.getElementById('smsApiKey').value;
+                // ============ NOTIFICATION SETTINGS ============
+                window.saveNotificationSettings = async function() {
+                    const data = {
+                        smtpHost: document.getElementById('smtpHost').value,
+                        smtpPort: document.getElementById('smtpPort').value,
+                        smtpEmail: document.getElementById('smtpEmail').value,
+                        smtpPassword: document.getElementById('smtpPassword').value,
+                        enableSms: document.getElementById('enableSms').checked,
+                        smsApiKey: document.getElementById('smsApiKey').value
+                    };
+                    
+                    const result = await apiCall('save_notification_settings', data, 'POST');
+                    if (result.success) {
+                        alert(result.message || 'Notification settings saved successfully!');
+                    } else {
+                        alert('Error: ' + (result.message || 'Failed to save settings'));
                     }
-                    saveAndAlert('Notification settings saved!');
                 }
 
                 // Toggle SMS Config
@@ -373,57 +444,210 @@ $active = 'settings';
                     document.getElementById('smsConfig').style.display = document.getElementById('enableSms').checked ? 'block' : 'none';
                 }
 
-                // Prepare Add Modal
-                window.prepareAddModal = function(type, title, modalId) {
-                    document.getElementById(modalId + 'Label').textContent = title;
-                    document.getElementById(type + 'ItemName').value = '';
-                    new bootstrap.Modal(document.getElementById(modalId)).show();
+                // ============ PRODUCE CATEGORIES ============
+                async function loadProduceCategories() {
+                    const result = await apiCall('get_produce_categories');
+                    if (result.success) {
+                        const list = document.getElementById('produceCategoriesList');
+                        if (result.data.length === 0) {
+                            list.innerHTML = '<li class="list-group-item text-muted">No categories found</li>';
+                            return;
+                        }
+                        list.innerHTML = result.data.map(cat => `
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                ${cat.category_name}
+                                <div>
+                                    <button class="btn btn-sm btn-outline-secondary me-1" onclick="prepareEditModal('produce', '${cat.category_name}')">Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteItem('produce', '${cat.category_name}')">Delete</button>
+                                </div>
+                            </li>
+                        `).join('');
+                    }
                 }
 
+                window.addProduceCategory = async function() {
+                    const name = document.getElementById('newProduceCategory').value.trim();
+                    if (!name) {
+                        alert('Please enter a category name');
+                        return;
+                    }
+                    
+                    const result = await apiCall('add_produce_category', { name }, 'POST');
+                    if (result.success) {
+                        alert(result.message);
+                        document.getElementById('newProduceCategory').value = '';
+                        loadProduceCategories();
+                    } else {
+                        alert('Error: ' + result.message);
+                    }
+                }
+
+                // ============ BUSINESS TYPES ============
+                async function loadBusinessTypes() {
+                    const result = await apiCall('get_business_types');
+                    if (result.success) {
+                        const list = document.getElementById('businessTypesList');
+                        if (result.data.length === 0) {
+                            list.innerHTML = '<li class="list-group-item text-muted">No business types found</li>';
+                            return;
+                        }
+                        list.innerHTML = result.data.map(type => `
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                ${type.type_name}
+                                <div>
+                                    <button class="btn btn-sm btn-outline-secondary me-1" onclick="prepareEditModal('business', '${type.type_name}')">Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteItem('business', '${type.type_name}')">Delete</button>
+                                </div>
+                            </li>
+                        `).join('');
+                    }
+                }
+
+                window.addBusinessType = async function() {
+                    const name = document.getElementById('newBusinessType').value.trim();
+                    if (!name) {
+                        alert('Please enter a business type name');
+                        return;
+                    }
+                    
+                    const result = await apiCall('add_business_type', { name }, 'POST');
+                    if (result.success) {
+                        alert(result.message);
+                        document.getElementById('newBusinessType').value = '';
+                        loadBusinessTypes();
+                    } else {
+                        alert('Error: ' + result.message);
+                    }
+                }
+
+                // ============ ADMIN ROLES ============
+                async function loadRoles() {
+                    const result = await apiCall('get_roles');
+                    if (result.success) {
+                        const list = document.getElementById('rolesList');
+                        if (result.data.length === 0) {
+                            list.innerHTML = '<li class="list-group-item text-muted">No roles found</li>';
+                            return;
+                        }
+                        list.innerHTML = result.data.map(role => `
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                ${role.role_name}
+                                <div>
+                                    <span class="badge bg-primary">Full Access</span>
+                                    <button class="btn btn-sm btn-outline-secondary ms-2" onclick="prepareEditModal('role', '${role.role_name}')">Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteItem('role', '${role.role_name}')">Delete</button>
+                                </div>
+                            </li>
+                        `).join('');
+                    }
+                }
+
+                window.addRole = async function() {
+                    const name = document.getElementById('newRoleName').value.trim();
+                    if (!name) {
+                        alert('Please enter a role name');
+                        return;
+                    }
+                    
+                    const result = await apiCall('add_role', { name }, 'POST');
+                    if (result.success) {
+                        alert(result.message);
+                        document.getElementById('newRoleName').value = '';
+                        loadRoles();
+                    } else {
+                        alert('Error: ' + result.message);
+                    }
+                }
+
+                // ============ ORDER STATUSES ============
+                async function loadOrderStatuses() {
+                    const result = await apiCall('get_order_statuses');
+                    if (result.success) {
+                        const list = document.getElementById('orderStatusesList');
+                        if (result.data.length === 0) {
+                            list.innerHTML = '<li class="list-group-item text-muted">No statuses found</li>';
+                            return;
+                        }
+                        list.innerHTML = result.data.map(status => `
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                ${status.status_name}
+                                <div>
+                                    <button class="btn btn-sm btn-outline-secondary me-1" onclick="prepareEditModal('orderStatus', '${status.status_name}')">Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteItem('orderStatus', '${status.status_name}')">Delete</button>
+                                </div>
+                            </li>
+                        `).join('');
+                    }
+                }
+
+                window.addOrderStatus = async function() {
+                    const name = document.getElementById('newStatusName').value.trim();
+                    if (!name) {
+                        alert('Please enter a status name');
+                        return;
+                    }
+                    
+                    const result = await apiCall('add_order_status', { name }, 'POST');
+                    if (result.success) {
+                        alert(result.message);
+                        document.getElementById('newStatusName').value = '';
+                        loadOrderStatuses();
+                    } else {
+                        alert('Error: ' + result.message);
+                    }
+                }
+
+                // ============ DESIGNATIONS ============
+                async function loadDesignations() {
+                    const result = await apiCall('get_designations');
+                    if (result.success) {
+                        const list = document.getElementById('designationsList');
+                        if (result.data.length === 0) {
+                            list.innerHTML = '<li class="list-group-item text-muted">No designations found</li>';
+                            return;
+                        }
+                        list.innerHTML = result.data.map(designation => `
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                ${designation.designation_name}
+                                <div>
+                                    <button class="btn btn-sm btn-outline-secondary me-1" onclick="prepareEditModal('designation', '${designation.designation_name}')">Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteItem('designation', '${designation.designation_name}')">Delete</button>
+                                </div>
+                            </li>
+                        `).join('');
+                    }
+                }
+
+                window.addDesignation = async function() {
+                    const name = document.getElementById('newDesignationName').value.trim();
+                    if (!name) {
+                        alert('Please enter a designation name');
+                        return;
+                    }
+                    
+                    const result = await apiCall('add_designation', { name }, 'POST');
+                    if (result.success) {
+                        alert(result.message);
+                        document.getElementById('newDesignationName').value = '';
+                        loadDesignations();
+                    } else {
+                        alert('Error: ' + result.message);
+                    }
+                }
+
+                // ============ COMMON FUNCTIONS ============
+                
                 // Prepare Edit Modal
                 window.prepareEditModal = function(type, itemName) {
                     const modalId = 'edit' + type.charAt(0).toUpperCase() + type.slice(1) + 'Modal';
-                    document.getElementById(modalId + 'Label').textContent = `Edit ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+                    const modal = new bootstrap.Modal(document.getElementById(modalId));
                     document.getElementById('edit' + type.charAt(0).toUpperCase() + type.slice(1) + 'ItemName').value = itemName;
                     document.getElementById('edit' + type.charAt(0).toUpperCase() + type.slice(1) + 'OriginalName').value = itemName;
-                    new bootstrap.Modal(document.getElementById(modalId)).show();
-                }
-
-                // Save Item from Add Modal
-                window.saveItem = function(type, modalId, inputId) {
-                    const name = document.getElementById(inputId).value.trim();
-
-                    if (!name) {
-                        alert('Name is required.');
-                        return;
-                    }
-
-                    let listKey;
-                    switch (type) {
-                        case 'produce': listKey = 'produceCategories'; break;
-                        case 'business': listKey = 'businessTypes'; break;
-                        case 'role': listKey = 'roles'; break;
-                        case 'orderStatus': listKey = 'orderStatuses'; break;
-                        default: return;
-                    }
-
-                    const currentList = settingsData[listKey];
-                    if (currentList.includes(name)) {
-                        alert('Item already exists.');
-                        return;
-                    }
-
-                    currentList.push(name);
-                    saveAndAlert(`${type} added!`);
-                    loadAllLists();
-                    const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
-                    modal.hide();
-                    document.getElementById(inputId).value = '';
-                    document.getElementById('new' + type.charAt(0).toUpperCase() + type.slice(1)).value = '';
+                    modal.show();
                 }
 
                 // Save Edited Item
-                window.saveEditItem = function(type, modalId, inputId, originalInputId) {
+                window.saveEditItem = async function(type, modalId, inputId, originalInputId) {
                     const newName = document.getElementById(inputId).value.trim();
                     const originalName = document.getElementById(originalInputId).value;
 
@@ -432,100 +656,50 @@ $active = 'settings';
                         return;
                     }
 
-                    let listKey;
+                    let action;
                     switch (type) {
-                        case 'produce': listKey = 'produceCategories'; break;
-                        case 'business': listKey = 'businessTypes'; break;
-                        case 'role': listKey = 'roles'; break;
-                        case 'orderStatus': listKey = 'orderStatuses'; break;
+                        case 'produce': action = 'update_produce_category'; break;
+                        case 'business': action = 'update_business_type'; break;
+                        case 'role': action = 'update_role'; break;
+                        case 'orderStatus': action = 'update_order_status'; break;
+                        case 'designation': action = 'update_designation'; break;
                         default: return;
                     }
 
-                    const currentList = settingsData[listKey];
-                    if (newName !== originalName && currentList.includes(newName)) {
-                        alert('Item already exists.');
+                    const result = await apiCall(action, { oldName: originalName, newName: newName }, 'POST');
+                    if (result.success) {
+                        alert(result.message);
+                        const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
+                        modal.hide();
+                        loadAllLists();
+                    } else {
+                        alert('Error: ' + result.message);
+                    }
+                }
+
+                // Delete Item
+                window.deleteItem = async function(type, itemName) {
+                    if (!confirm(`Are you sure you want to delete "${itemName}"?`)) {
                         return;
                     }
 
-                    const index = currentList.indexOf(originalName);
-                    if (index !== -1) {
-                        currentList[index] = newName;
-                        saveAndAlert(`${type} updated!`);
-                        loadAllLists();
-                        const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
-                        modal.hide();
+                    let action;
+                    switch (type) {
+                        case 'produce': action = 'delete_produce_category'; break;
+                        case 'business': action = 'delete_business_type'; break;
+                        case 'role': action = 'delete_role'; break;
+                        case 'orderStatus': action = 'delete_order_status'; break;
+                        case 'designation': action = 'delete_designation'; break;
+                        default: return;
                     }
-                }
 
-                // Delete Item (with confirm)
-                window.deleteItem = function(type, itemName) {
-                    if (confirm(`Delete ${itemName}?`)) {
-                        let listKey;
-                        switch (type) {
-                            case 'produce': listKey = 'produceCategories'; break;
-                            case 'business': listKey = 'businessTypes'; break;
-                            case 'role': listKey = 'roles'; break;
-                            case 'orderStatus': listKey = 'orderStatuses'; break;
-                            default: return;
-                        }
-                        settingsData[listKey] = settingsData[listKey].filter(item => item !== itemName);
-                        saveAndAlert(`${type} deleted!`);
+                    const result = await apiCall(action, { name: itemName }, 'POST');
+                    if (result.success) {
+                        alert(result.message);
                         loadAllLists();
+                    } else {
+                        alert('Error: ' + result.message);
                     }
-                }
-
-                // Load specific lists
-                function loadProduceCategories() {
-                    const list = document.getElementById('produceCategoriesList');
-                    list.innerHTML = settingsData.produceCategories.map(cat => `
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            ${cat}
-                            <div>
-                                <button class="btn btn-sm btn-outline-secondary me-1" data-bs-toggle="modal" data-bs-target="#editProduceModal" onclick="prepareEditModal('produce', '${cat}')">Edit</button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteItem('produce', '${cat}')">Delete</button>
-                            </div>
-                        </li>
-                    `).join('');
-                }
-
-                function loadBusinessTypes() {
-                    const list = document.getElementById('businessTypesList');
-                    list.innerHTML = settingsData.businessTypes.map(type => `
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            ${type}
-                            <div>
-                                <button class="btn btn-sm btn-outline-secondary me-1" data-bs-toggle="modal" data-bs-target="#editBusinessModal" onclick="prepareEditModal('business', '${type}')">Edit</button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteItem('business', '${type}')">Delete</button>
-                            </div>
-                        </li>
-                    `).join('');
-                }
-
-                function loadRoles() {
-                    const list = document.getElementById('rolesList');
-                    list.innerHTML = settingsData.roles.map(role => `
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            ${role}
-                            <div>
-                                <span class="badge bg-primary">Full Access</span>
-                                <button class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="modal" data-bs-target="#editRoleModal" onclick="prepareEditModal('role', '${role}')">Edit</button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteItem('role', '${role}')">Delete</button>
-                            </div>
-                        </li>
-                    `).join('');
-                }
-
-                function loadOrderStatuses() {
-                    const list = document.getElementById('orderStatusesList');
-                    list.innerHTML = settingsData.orderStatuses.map(status => `
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            ${status}
-                            <div>
-                                <button class="btn btn-sm btn-outline-secondary me-1" data-bs-toggle="modal" data-bs-target="#editOrderStatusModal" onclick="prepareEditModal('orderStatus', '${status}')">Edit</button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteItem('orderStatus', '${status}')">Delete</button>
-                            </div>
-                        </li>
-                    `).join('');
                 }
 
                 // Load all lists
@@ -534,26 +708,34 @@ $active = 'settings';
                     loadBusinessTypes();
                     loadRoles();
                     loadOrderStatuses();
-                }
-
-                // Utility: Save to localStorage & Alert
-                function saveAndAlert(message) {
-                    localStorage.setItem('agriAdminSettings', JSON.stringify(settingsData));
-                    alert(message);
+                    loadDesignations();
                 }
 
                 // Load initial data
-                function loadSettingsData() {
+                async function loadSettingsData() {
+                    // Load general settings
+                    const generalResult = await apiCall('get_general_settings');
+                    if (generalResult.success && generalResult.data) {
+                        document.getElementById('siteName').value = generalResult.data.site_name || 'AgriAdmin Platform';
+                        document.getElementById('currency').value = generalResult.data.currency || '₦';
+                        document.getElementById('timezone').value = generalResult.data.timezone || 'Africa/Lagos';
+                        document.getElementById('dateFormat').value = generalResult.data.date_format || 'dd/mm/yyyy';
+                    }
+
+                    // Load notification settings
+                    const notifResult = await apiCall('get_notification_settings');
+                    if (notifResult.success && notifResult.data) {
+                        document.getElementById('smtpHost').value = notifResult.data.smtp_host || '';
+                        document.getElementById('smtpPort').value = notifResult.data.smtp_port || '';
+                        document.getElementById('smtpEmail').value = notifResult.data.smtp_email || '';
+                        document.getElementById('smtpPassword').value = notifResult.data.smtp_password || '';
+                        document.getElementById('enableSms').checked = notifResult.data.enable_sms === '1';
+                        document.getElementById('smsApiKey').value = notifResult.data.sms_api_key || '';
+                        toggleSmsConfig();
+                    }
+
+                    // Load all lists
                     loadAllLists();
-                    document.getElementById('siteName').value = settingsData.general.siteName;
-                    document.getElementById('currency').value = settingsData.general.currency;
-                    document.getElementById('timezone').value = settingsData.general.timezone;
-                    document.getElementById('dateFormat').value = settingsData.general.dateFormat;
-                    document.getElementById('smtpHost').value = settingsData.notifications.smtpHost;
-                    document.getElementById('smtpPort').value = settingsData.notifications.smtpPort;
-                    document.getElementById('smtpEmail').value = settingsData.notifications.smtpEmail;
-                    document.getElementById('enableSms').checked = settingsData.notifications.enableSms;
-                    toggleSmsConfig();
                 }
 
                 console.log('Settings module script fully initialized');

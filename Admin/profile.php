@@ -9,6 +9,127 @@ $active = 'profile';
 <!DOCTYPE html>
 <html lang="en">
     <?php include 'header.php'; ?>
+    <style>
+        .badge-success {
+            background-color:rgb(233, 167, 0);
+            color: white;
+        }
+        
+        /* Permissions Selector Styles */
+        .permissions-selector {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #f8f9fa;
+        }
+        
+        .permission-module {
+            background: white;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .permission-module-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .permission-module-header input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .permission-module-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #2c3e50;
+            margin: 0;
+            flex: 1;
+        }
+        
+        .permission-count {
+            font-size: 0.75rem;
+            color: #6c757d;
+            background: #e9ecef;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        
+        .permission-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .permission-item {
+            display: flex;
+            align-items: start;
+            gap: 8px;
+            padding: 6px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .permission-item:hover {
+            background-color: #f1f3f5;
+        }
+        
+        .permission-item input[type="checkbox"] {
+            margin-top: 2px;
+            cursor: pointer;
+        }
+        
+        .permission-item label {
+            cursor: pointer;
+            margin: 0;
+            font-size: 0.875rem;
+            line-height: 1.4;
+            flex: 1;
+        }
+        
+        .permission-item label small {
+            display: block;
+            color: #6c757d;
+            font-size: 0.75rem;
+        }
+        
+        .permission-item input[type="checkbox"]:checked + label {
+            color: #0d6efd;
+            font-weight: 500;
+        }
+        
+        .permissions-selector::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .permissions-selector::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .permissions-selector::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        
+        .permissions-selector::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        .permission-module.hidden {
+            display: none;
+        }
+    </style>
 <body>
     <!-- Header -->
     <header class="header">
@@ -78,71 +199,7 @@ $active = 'profile';
                         </tr>
                     </thead>
                     <tbody id="adminsTableBody">
-                        <!-- Sample data - In real app, load from DB -->
-                        <tr data-adminid="ADMIN001" data-status="active" data-role="super" data-name="Admin User" data-email="admin@example.com">
-                            <td>Admin User</td>
-                            <td>admin@example.com</td>
-                            <td><span class="badge badge-primary">Super Admin</span></td>
-                            <td>Platform Owner</td>
-                            <td><span class="badge badge-approved">Active</span></td>
-                            <td>07 Oct 2023, 14:30 PM</td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="action-btn btn-edit view-details-btn" data-adminid="ADMIN001"><i class="fas fa-eye"></i></button>
-                                    <button class="action-btn btn-edit view-logs-btn" data-adminid="ADMIN001"><i class="fas fa-history"></i></button>
-                                    <button class="action-btn btn-edit edit-admin-btn" data-adminid="ADMIN001"><i class="fas fa-edit"></i></button>
-                                    <button class="action-btn btn-disable disable-admin-btn" data-adminid="ADMIN001"><i class="fas fa-ban"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr data-adminid="ADMIN002" data-status="active" data-role="moderator" data-name="Operations Manager" data-email="ops@agriadmin.com">
-                            <td>Operations Manager</td>
-                            <td>ops@agriadmin.com</td>
-                            <td><span class="badge badge-info">Moderator</span></td>
-                            <td>Orders & Reports</td>
-                            <td><span class="badge badge-approved">Active</span></td>
-                            <td>06 Oct 2023, 11:15 AM</td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="action-btn btn-edit view-details-btn" data-adminid="ADMIN002"><i class="fas fa-eye"></i></button>
-                                    <button class="action-btn btn-edit view-logs-btn" data-adminid="ADMIN002"><i class="fas fa-history"></i></button>
-                                    <button class="action-btn btn-edit edit-admin-btn" data-adminid="ADMIN002"><i class="fas fa-edit"></i></button>
-                                    <button class="action-btn btn-disable disable-admin-btn" data-adminid="ADMIN002"><i class="fas fa-ban"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr data-adminid="ADMIN003" data-status="disabled" data-role="viewer" data-name="Support Viewer" data-email="support@agriadmin.com">
-                            <td>Support Viewer</td>
-                            <td>support@agriadmin.com</td>
-                            <td><span class="badge badge-secondary">Viewer</span></td>
-                            <td>Read-Only Support</td>
-                            <td><span class="badge badge-disabled">Disabled</span></td>
-                            <td>03 Oct 2023, 09:45 AM</td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="action-btn btn-edit view-details-btn" data-adminid="ADMIN003"><i class="fas fa-eye"></i></button>
-                                    <button class="action-btn btn-edit view-logs-btn" data-adminid="ADMIN003"><i class="fas fa-history"></i></button>
-                                    <button class="action-btn btn-edit edit-admin-btn" data-adminid="ADMIN003"><i class="fas fa-edit"></i></button>
-                                    <button class="action-btn btn-approve enable-admin-btn" data-adminid="ADMIN003"><i class="fas fa-check"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr data-adminid="ADMIN004" data-status="active" data-role="moderator" data-name="Finance Admin" data-email="finance@agriadmin.com">
-                            <td>Finance Admin</td>
-                            <td>finance@agriadmin.com</td>
-                            <td><span class="badge badge-info">Moderator</span></td>
-                            <td>Payments & Invoices</td>
-                            <td><span class="badge badge-approved">Active</span></td>
-                            <td>07 Oct 2023, 10:20 AM</td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="action-btn btn-edit view-details-btn" data-adminid="ADMIN004"><i class="fas fa-eye"></i></button>
-                                    <button class="action-btn btn-edit view-logs-btn" data-adminid="ADMIN004"><i class="fas fa-history"></i></button>
-                                    <button class="action-btn btn-edit edit-admin-btn" data-adminid="ADMIN004"><i class="fas fa-edit"></i></button>
-                                    <button class="action-btn btn-disable disable-admin-btn" data-adminid="ADMIN004"><i class="fas fa-ban"></i></button>
-                                </div>
-                            </td>
-                        </tr>
+                    
                     </tbody>
                 </table>
             </div>
@@ -200,9 +257,7 @@ $active = 'profile';
                                     <label for="addAdminRole" class="form-label">Role</label>
                                     <select class="form-select" id="addAdminRole" required>
                                         <option value="">Select Role</option>
-                                        <option value="super">Super Admin</option>
-                                        <option value="moderator">Moderator</option>
-                                        <option value="viewer">Viewer</option>
+                                        <!-- Dynamically populated from admin_roles -->
                                     </select>
                                 </div>
                             </div>
@@ -223,7 +278,10 @@ $active = 'profile';
                         </div>
                         <div class="mb-3">
                             <label for="addAdminDesignation" class="form-label">Designation</label>
-                            <input type="text" class="form-control" id="addAdminDesignation" placeholder="e.g., Operations Manager">
+                            <select class="form-select" id="addAdminDesignation">
+                                <option value="">Select Designation</option>
+                                <!-- Dynamically populated from designations -->
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label for="addAdminProfilePic" class="form-label">Profile Picture</label>
@@ -233,6 +291,26 @@ $active = 'profile';
                         <div class="mb-3">
                             <label for="addAdminNotes" class="form-label">Notes</label>
                             <textarea class="form-control" id="addAdminNotes" rows="3" placeholder="Optional notes..."></textarea>
+                        </div>
+                        
+                        <!-- Permissions Section -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label mb-0">Permissions</label>
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllPermissions('add')">Select All</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAllPermissions('add')">Deselect All</button>
+                                </div>
+                            </div>
+                            <input type="text" class="form-control mb-2" id="addPermissionSearch" placeholder="Search permissions...">
+                            <div class="permissions-selector" id="addPermissionsContainer">
+                                <div class="text-center py-3">
+                                    <div class="spinner-border spinner-border-sm" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p class="mb-0 mt-2 text-muted">Loading permissions...</p>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -273,16 +351,17 @@ $active = 'profile';
                                 <div class="mb-3">
                                     <label for="editAdminRole" class="form-label">Role</label>
                                     <select class="form-select" id="editAdminRole" required>
-                                        <option value="super">Super Admin</option>
-                                        <option value="moderator">Moderator</option>
-                                        <option value="viewer">Viewer</option>
+                                        <!-- Dynamically populated from admin_roles -->
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="editAdminDesignation" class="form-label">Designation</label>
-                                    <input type="text" class="form-control" id="editAdminDesignation">
+                                    <select class="form-select" id="editAdminDesignation">
+                                        <option value="">Select Designation</option>
+                                        <!-- Dynamically populated from designations -->
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -313,6 +392,26 @@ $active = 'profile';
                             <label for="editAdminPassword" class="form-label">New Password (leave blank to keep current)</label>
                             <input type="password" class="form-control" id="editAdminPassword">
                             <div class="form-text">Password will only be updated if provided.</div>
+                        </div>
+                        
+                        <!-- Permissions Section -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label mb-0">Permissions</label>
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllPermissions('edit')">Select All</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAllPermissions('edit')">Deselect All</button>
+                                </div>
+                            </div>
+                            <input type="text" class="form-control mb-2" id="editPermissionSearch" placeholder="Search permissions...">
+                            <div class="permissions-selector" id="editPermissionsContainer">
+                                <div class="text-center py-3">
+                                    <div class="spinner-border spinner-border-sm" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p class="mb-0 mt-2 text-muted">Loading permissions...</p>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -425,479 +524,6 @@ $active = 'profile';
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Wait for DOM to be fully loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded - Admin Profile script starting');
-
-            // Initialize settingsData with enhanced admin profile details
-            let settingsData = JSON.parse(localStorage.getItem('agriAdminSettings')) || {
-                admins: {
-                    'ADMIN001': { 
-                        name: 'Admin User', 
-                        email: 'admin@example.com', 
-                        phone: '+2348031234567', 
-                        address: '123 Admin St, Lagos', 
-                        role: 'super', 
-                        designation: 'Platform Owner', 
-                        status: 'active', 
-                        dateJoined: '01 Jan 2023', 
-                        lastLogin: '07 Oct 2023, 14:30 PM', 
-                        lastActivity: 'Updated settings on 07 Oct 2023', 
-                        notes: 'Primary administrator', 
-                        profilePic: '' 
-                    },
-                    'ADMIN002': { 
-                        name: 'Operations Manager', 
-                        email: 'ops@agriadmin.com', 
-                        phone: '+2348059876543', 
-                        address: '456 Ops Rd, Abuja', 
-                        role: 'moderator', 
-                        designation: 'Orders & Reports', 
-                        status: 'active', 
-                        dateJoined: '15 Mar 2023', 
-                        lastLogin: '06 Oct 2023, 11:15 AM', 
-                        lastActivity: 'Processed order ORD002 on 06 Oct 2023', 
-                        notes: 'Manages order workflows', 
-                        profilePic: '' 
-                    },
-                    'ADMIN003': { 
-                        name: 'Support Viewer', 
-                        email: 'support@agriadmin.com', 
-                        phone: '+2348071112223', 
-                        address: '789 Support Ave, Port Harcourt', 
-                        role: 'viewer', 
-                        designation: 'Read-Only Support', 
-                        status: 'disabled', 
-                        dateJoined: '10 Aug 2023', 
-                        lastLogin: '03 Oct 2023, 09:45 AM', 
-                        lastActivity: 'Viewed reports on 03 Oct 2023', 
-                        notes: 'Temporary support staff', 
-                        profilePic: '' 
-                    },
-                    'ADMIN004': { 
-                        name: 'Finance Admin', 
-                        email: 'finance@agriadmin.com', 
-                        phone: '+2348095556667', 
-                        address: '101 Finance Blvd, Kano', 
-                        role: 'moderator', 
-                        designation: 'Payments & Invoices', 
-                        status: 'active', 
-                        dateJoined: '20 Jun 2023', 
-                        lastLogin: '07 Oct 2023, 10:20 AM', 
-                        lastActivity: 'Processed payout on 07 Oct 2023', 
-                        notes: 'Handles financial transactions', 
-                        profilePic: '' 
-                    }
-                }
-            };
-
-            // Common scripts (sidebar toggle, logout, etc.)
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', function() {
-                    document.querySelector('.sidebar').classList.toggle('collapsed');
-                });
-            }
-
-            const headerToggle = document.getElementById('headerToggle');
-            if (headerToggle) {
-                headerToggle.addEventListener('click', function() {
-                    document.querySelector('.sidebar').classList.toggle('active');
-                });
-            }
-
-            const logoutBtn = document.getElementById('logoutBtn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    if (confirm('Are you sure you want to sign out?')) {
-                        alert('You have been signed out successfully.');
-                    }
-                });
-            }
-
-            // Admin module-specific variables
-            let currentEditAdminId = '';
-
-            // Function to read file as Base64
-            function readFileAsBase64(fileInput, callback) {
-                const file = fileInput.files[0];
-                if (file) {
-                    if (file.size > 2 * 1024 * 1024) {
-                        alert('File size exceeds 2MB.');
-                        fileInput.value = '';
-                        return;
-                    }
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        callback(e.target.result);
-                    };
-                    reader.onerror = function() {
-                        alert('Error reading file.');
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    callback(null);
-                }
-            }
-
-            // Event delegation for action buttons
-            document.addEventListener('click', function(e) {
-                if (e.target.closest('a[href]') && !e.target.closest('.action-buttons')) {
-                    return;
-                }
-
-                const target = e.target.closest('.view-details-btn, .view-logs-btn, .edit-admin-btn, .disable-admin-btn, .enable-admin-btn');
-
-                if (!target) return;
-
-                e.preventDefault();
-
-                const adminId = target.getAttribute('data-adminid');
-
-                console.log('Button clicked:', { adminId, classList: target.className });
-
-                try {
-                    if (target.classList.contains('view-details-btn')) {
-                        viewAdminDetails(adminId);
-                    } else if (target.classList.contains('view-logs-btn')) {
-                        viewAdminLogs(adminId);
-                    } else if (target.classList.contains('edit-admin-btn')) {
-                        editAdmin(adminId);
-                    } else if (target.classList.contains('disable-admin-btn')) {
-                        disableAdminModal(adminId);
-                    } else if (target.classList.contains('enable-admin-btn')) {
-                        enableAdmin(adminId);
-                    }
-                } catch (error) {
-                    console.error('Error handling button click:', error);
-                    alert('Error: ' + error.message);
-                }
-            });
-
-            // Add new admin
-            document.getElementById('saveNewAdmin').addEventListener('click', function() {
-                const name = document.getElementById('addAdminName').value.trim();
-                const email = document.getElementById('addAdminEmail').value.trim();
-                const password = document.getElementById('addAdminPassword').value;
-                const role = document.getElementById('addAdminRole').value;
-                const designation = document.getElementById('addAdminDesignation').value.trim();
-                const phone = document.getElementById('addAdminPhone').value.trim();
-                const address = document.getElementById('addAdminAddress').value.trim();
-                const notes = document.getElementById('addAdminNotes').value.trim();
-                const profilePicInput = document.getElementById('addAdminProfilePic');
-
-                if (!name || !email || !password || !role) {
-                    alert('Name, Email, Password, and Role are required.');
-                    return;
-                }
-
-                readFileAsBase64(profilePicInput, function(profilePic) {
-                    const newId = `ADMIN${Math.floor(Math.random() * 1000) + 5}`;
-                    const tableBody = document.getElementById('adminsTableBody');
-                    const newRow = tableBody.insertRow();
-                    newRow.setAttribute('data-adminid', newId);
-                    newRow.setAttribute('data-status', 'active');
-                    newRow.setAttribute('data-role', role);
-                    newRow.setAttribute('data-name', name);
-                    newRow.setAttribute('data-email', email);
-                    newRow.innerHTML = `
-                        <td>${name}</td>
-                        <td>${email}</td>
-                        <td><span class="badge ${role === 'super' ? 'badge-primary' : role === 'moderator' ? 'badge-info' : 'badge-secondary'}">${role.charAt(0).toUpperCase() + role.slice(1)}</span></td>
-                        <td>${designation || 'N/A'}</td>
-                        <td><span class="badge badge-approved">Active</span></td>
-                        <td>${new Date().toLocaleString()}</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="action-btn btn-edit view-details-btn" data-adminid="${newId}"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn btn-edit view-logs-btn" data-adminid="${newId}"><i class="fas fa-history"></i></button>
-                                <button class="action-btn btn-edit edit-admin-btn" data-adminid="${newId}"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn btn-disable disable-admin-btn" data-adminid="${newId}"><i class="fas fa-ban"></i></button>
-                            </div>
-                        </td>
-                    `;
-
-                    settingsData.admins[newId] = {
-                        name,
-                        email,
-                        phone: phone || 'N/A',
-                        address: address || 'N/A',
-                        role,
-                        designation: designation || 'N/A',
-                        status: 'active',
-                        dateJoined: new Date().toLocaleDateString(),
-                        lastLogin: new Date().toLocaleString(),
-                        lastActivity: 'Account created on ' + new Date().toLocaleDateString(),
-                        notes,
-                        profilePic: profilePic || ''
-                    };
-                    localStorage.setItem('agriAdminSettings', JSON.stringify(settingsData));
-
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('addAdminModal'));
-                    modal.hide();
-                    document.getElementById('addAdminForm').reset();
-                    document.getElementById('addAdminProfilePic').value = '';
-                    alert('New admin added successfully!');
-                });
-            });
-
-            // Edit admin
-            function editAdmin(adminId) {
-                currentEditAdminId = adminId;
-                const admin = settingsData.admins[adminId];
-                if (admin) {
-                    document.getElementById('editAdminName').value = admin.name;
-                    document.getElementById('editAdminEmail').value = admin.email;
-                    document.getElementById('editAdminRole').value = admin.role;
-                    document.getElementById('editAdminDesignation').value = admin.designation;
-                    document.getElementById('editAdminPhone').value = admin.phone;
-                    document.getElementById('editAdminAddress').value = admin.address;
-                    document.getElementById('editAdminNotes').value = admin.notes;
-                    document.getElementById('editAdminProfilePic').value = '';
-                }
-                new bootstrap.Modal(document.getElementById('editAdminModal')).show();
-            }
-
-            document.getElementById('updateAdmin').addEventListener('click', function() {
-                const name = document.getElementById('editAdminName').value.trim();
-                const email = document.getElementById('editAdminEmail').value.trim();
-                const role = document.getElementById('editAdminRole').value;
-                const designation = document.getElementById('editAdminDesignation').value.trim();
-                const phone = document.getElementById('editAdminPhone').value.trim();
-                const address = document.getElementById('editAdminAddress').value.trim();
-                const notes = document.getElementById('editAdminNotes').value.trim();
-                const password = document.getElementById('editAdminPassword').value.trim();
-                const profilePicInput = document.getElementById('editAdminProfilePic');
-
-                if (!name || !email || !role) {
-                    alert('Name, Email, and Role are required.');
-                    return;
-                }
-
-                readFileAsBase64(profilePicInput, function(profilePic) {
-                    const rows = document.querySelectorAll('#adminsTableBody tr[data-adminid]');
-                    rows.forEach(row => {
-                        if (row.getAttribute('data-adminid') === currentEditAdminId) {
-                            row.cells[0].textContent = name;
-                            row.cells[1].textContent = email;
-                            row.cells[2].innerHTML = `<span class="badge ${role === 'super' ? 'badge-primary' : role === 'moderator' ? 'badge-info' : 'badge-secondary'}">${role.charAt(0).toUpperCase() + role.slice(1)}</span>`;
-                            row.cells[3].textContent = designation || 'N/A';
-                            row.setAttribute('data-name', name);
-                            row.setAttribute('data-email', email);
-                            row.setAttribute('data-role', role);
-                        }
-                    });
-
-                    settingsData.admins[currentEditAdminId] = {
-                        ...settingsData.admins[currentEditAdminId],
-                        name,
-                        email,
-                        phone: phone || 'N/A',
-                        address: address || 'N/A',
-                        role,
-                        designation: designation || 'N/A',
-                        notes,
-                        profilePic: profilePic || settingsData.admins[currentEditAdminId].profilePic,
-                        lastActivity: 'Profile updated on ' + new Date().toLocaleDateString()
-                    };
-                    localStorage.setItem('agriAdminSettings', JSON.stringify(settingsData));
-
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('editAdminModal'));
-                    modal.hide();
-                    document.getElementById('editAdminProfilePic').value = '';
-                    alert('Admin updated successfully!');
-                });
-            });
-
-            // Disable admin modal
-            function disableAdminModal(adminId) {
-                currentEditAdminId = adminId;
-                const admin = settingsData.admins[adminId];
-                document.getElementById('disableConfirmText').textContent = `Disable account for ${admin.name}?`;
-                new bootstrap.Modal(document.getElementById('disableAdminModal')).show();
-            }
-
-            document.getElementById('confirmDisableAdmin').addEventListener('click', function() {
-                const reason = document.getElementById('disableReason').value;
-                const notes = document.getElementById('disableNotes').value.trim();
-
-                const rows = document.querySelectorAll('#adminsTableBody tr[data-adminid]');
-                rows.forEach(row => {
-                    if (row.getAttribute('data-adminid') === currentEditAdminId) {
-                        row.cells[4].innerHTML = '<span class="badge badge-disabled">Disabled</span>';
-                        row.cells[6].innerHTML = `
-                            <div class="action-buttons">
-                                <button class="action-btn btn-edit view-details-btn" data-adminid="${currentEditAdminId}"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn btn-edit view-logs-btn" data-adminid="${currentEditAdminId}"><i class="fas fa-history"></i></button>
-                                <button class="action-btn btn-edit edit-admin-btn" data-adminid="${currentEditAdminId}"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn btn-approve enable-admin-btn" data-adminid="${currentEditAdminId}"><i class="fas fa-check"></i></button>
-                            </div>
-                        `;
-                        row.setAttribute('data-status', 'disabled');
-                    }
-                });
-
-                settingsData.admins[currentEditAdminId].status = 'disabled';
-                settingsData.admins[currentEditAdminId].lastActivity = `Account disabled on ${new Date().toLocaleDateString()}`;
-                localStorage.setItem('agriAdminSettings', JSON.stringify(settingsData));
-
-                const modal = bootstrap.Modal.getInstance(document.getElementById('disableAdminModal'));
-                modal.hide();
-                document.getElementById('disableReason').value = 'other';
-                document.getElementById('disableNotes').value = '';
-                alert(`Admin disabled. Reason: ${reason}. Notes: ${notes || 'None'}.`);
-            });
-
-            // Enable admin
-            function enableAdmin(adminId) {
-                if (confirm('Enable this admin?')) {
-                    const rows = document.querySelectorAll('#adminsTableBody tr[data-adminid]');
-                    rows.forEach(row => {
-                        if (row.getAttribute('data-adminid') === adminId) {
-                            row.cells[4].innerHTML = '<span class="badge badge-approved">Active</span>';
-                            row.cells[6].innerHTML = `
-                                <div class="action-buttons">
-                                    <button class="action-btn btn-edit view-details-btn" data-adminid="${adminId}"><i class="fas fa-eye"></i></button>
-                                    <button class="action-btn btn-edit view-logs-btn" data-adminid="${adminId}"><i class="fas fa-history"></i></button>
-                                    <button class="action-btn btn-edit edit-admin-btn" data-adminid="${adminId}"><i class="fas fa-edit"></i></button>
-                                    <button class="action-btn btn-disable disable-admin-btn" data-adminid="${adminId}"><i class="fas fa-ban"></i></button>
-                                </div>
-                            `;
-                            row.setAttribute('data-status', 'active');
-                        }
-                    });
-
-                    settingsData.admins[adminId].status = 'active';
-                    settingsData.admins[adminId].lastActivity = `Account enabled on ${new Date().toLocaleDateString()}`;
-                    localStorage.setItem('agriAdminSettings', JSON.stringify(settingsData));
-                    alert('Admin enabled.');
-                }
-            }
-
-            // View admin details
-            function viewAdminDetails(adminId) {
-                const admin = settingsData.admins[adminId];
-                if (admin) {
-                    document.getElementById('viewAdminName').textContent = admin.name;
-                    document.getElementById('viewAdminEmail').textContent = admin.email;
-                    document.getElementById('viewAdminPhone').textContent = admin.phone || 'N/A';
-                    document.getElementById('viewAdminAddress').textContent = admin.address || 'N/A';
-                    document.getElementById('viewAdminRole').textContent = admin.role.charAt(0).toUpperCase() + admin.role.slice(1);
-                    document.getElementById('viewAdminDesignation').textContent = admin.designation || 'N/A';
-                    document.getElementById('viewAdminStatus').textContent = admin.status.charAt(0).toUpperCase() + admin.status.slice(1);
-                    document.getElementById('viewAdminDateJoined').textContent = admin.dateJoined || 'N/A';
-                    document.getElementById('viewAdminLastLogin').textContent = admin.lastLogin || 'N/A';
-                    document.getElementById('viewAdminLastActivity').textContent = admin.lastActivity || 'N/A';
-                    document.getElementById('viewAdminNotes').textContent = admin.notes || 'None';
-                    const profilePic = document.getElementById('adminProfilePic');
-                    if (admin.profilePic) {
-                        profilePic.src = admin.profilePic;
-                        profilePic.style.display = 'block';
-                    } else {
-                        profilePic.src = 'https://via.placeholder.com/150?text=No+Image';
-                        profilePic.style.display = 'block';
-                    }
-                    new bootstrap.Modal(document.getElementById('viewDetailsModal')).show();
-                }
-            }
-
-            // View admin logs
-            function viewAdminLogs(adminId) {
-                const demoLogs = {
-                    'ADMIN001': [
-                        { action: 'Logged in', timestamp: '07 Oct 2023, 14:30 PM', ip: '192.168.1.1', details: 'Dashboard access' },
-                        { action: 'Updated Order #ORD001', timestamp: '06 Oct 2023, 16:20 PM', ip: '192.168.1.1', details: 'Status to Shipped' },
-                        { action: 'Viewed Reports', timestamp: '05 Oct 2023, 10:45 AM', ip: '192.168.1.2', details: 'REP001 details' }
-                    ],
-                    'ADMIN002': [
-                        { action: 'Logged in', timestamp: '07 Oct 2023, 11:15 AM', ip: '10.0.0.5', details: 'Orders management' },
-                        { action: 'Resolved Report REP002', timestamp: '06 Oct 2023, 15:30 PM', ip: '10.0.0.5', details: 'Sent warning' },
-                        { action: 'Added Transport Provider', timestamp: '04 Oct 2023, 13:00 PM', ip: '10.0.0.6', details: 'ABC Transport' }
-                    ],
-                    'ADMIN003': [
-                        { action: 'Last Login', timestamp: '03 Oct 2023, 09:45 AM', ip: '172.16.0.1', details: 'Disabled since then' },
-                        { action: 'Viewed Profile', timestamp: '02 Oct 2023, 14:10 PM', ip: '172.16.0.1', details: 'Self-view' }
-                    ],
-                    'ADMIN004': [
-                        { action: 'Logged in', timestamp: '07 Oct 2023, 10:20 AM', ip: '192.168.0.10', details: 'Finance dashboard' },
-                        { action: 'Processed Payout', timestamp: '06 Oct 2023, 12:45 PM', ip: '192.168.0.10', details: 'To Farmer John' }
-                    ]
-                };
-
-                const logs = demoLogs[adminId] || [{ message: 'No logs found' }];
-                const admin = settingsData.admins[adminId];
-                const adminName = admin ? admin.name : 'Unknown';
-
-                document.getElementById('logsContent').innerHTML = `
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0"><i class="fas fa-user me-2"></i>Logs for ${adminName}</h6>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-sm mb-0">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Action</th>
-                                            <th>Timestamp</th>
-                                            <th>IP Address</th>
-                                            <th>Details</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${logs.map(log => `
-                                            <tr>
-                                                <td><span class="badge bg-secondary">${log.action}</span></td>
-                                                <td>${log.timestamp}</td>
-                                                <td><span class="badge bg-info">${log.ip}</span></td>
-                                                <td>${log.details}</td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                new bootstrap.Modal(document.getElementById('viewLogsModal')).show();
-            }
-
-            // Filter table
-            function applyFilters() {
-                const search = document.getElementById('searchAdmins').value.toLowerCase();
-                const roleFilter = document.getElementById('filterRole').value;
-                const statusFilter = document.getElementById('filterStatus').value;
-                const rows = document.querySelectorAll('#adminsTableBody tr[data-adminid]');
-                rows.forEach(row => {
-                    const name = row.cells[0].textContent.toLowerCase();
-                    const email = row.cells[1].textContent.toLowerCase();
-                    const role = row.getAttribute('data-role');
-                    const status = row.getAttribute('data-status');
-
-                    let show = true;
-
-                    if (search && !name.includes(search) && !email.includes(search)) {
-                        show = false;
-                    }
-                    if (roleFilter && role !== roleFilter) {
-                        show = false;
-                    }
-                    if (statusFilter && status !== statusFilter) {
-                        show = false;
-                    }
-
-                    row.style.display = show ? '' : 'none';
-                });
-            }
-
-            // Real-time search
-            document.getElementById('searchAdmins').addEventListener('keyup', applyFilters);
-
-            console.log('Admin Profile script fully initialized');
-        });
-    </script>
+    <script src="assets/profile.js"></script>
 </body>
 </html>

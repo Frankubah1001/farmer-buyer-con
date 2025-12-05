@@ -131,7 +131,6 @@ $active = 'dashboard';
         </div>
     </main>
     <?php include 'footer.php'; ?>
-    <?php include 'assets/scripts.php'; ?>
     <script>
         // Initialize Charts
         const farmersCtx = document.getElementById('farmersChart').getContext('2d');

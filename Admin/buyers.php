@@ -31,6 +31,26 @@ $cityStmt->close();
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <?php include 'header.php'; ?>
+    <style>
+        .profile-pic-preview {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #dee2e6;
+        }
+        .badge-disabled {
+            background-color: #dc3545;
+        }
+        .badge-verified {
+            background-color: #198754;
+        }
+        .badge-pending {
+            background-color: #ffc107;
+            color: #000;
+        }
+    </style>
+
 <body>
     <!-- Header -->
     <header class="header">
@@ -232,27 +252,9 @@ $cityStmt->close();
             </div>
         </div>
     </div>
+    <?php include 'footer.php'; ?>
 
-    <style>
-        .profile-pic-preview {
-            max-width: 100px;
-            max-height: 100px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            border: 1px solid #dee2e6;
-        }
-        .badge-disabled {
-            background-color: #dc3545;
-        }
-        .badge-verified {
-            background-color: #198754;
-        }
-        .badge-pending {
-            background-color: #ffc107;
-            color: #000;
-        }
-    </style>
-
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>

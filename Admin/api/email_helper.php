@@ -402,7 +402,7 @@ function getFarmerEmailTemplate($farmer_name, $report_data) {
       </ul>
 
       <div style="text-align: center;">
-        <a href="http://localhost/farmerBuyerCon/resources/dashboard.php" class="btn">Go to Dashboard</a>
+        <a href="http://localhost/farmerBuyerCon/resources/farmersDashboard.php" class="btn">Go to Dashboard</a>
       </div>
 
       <p style="margin-top: 20px;">We appreciate your cooperation in maintaining the quality and trust of our marketplace. If you have any questions about this resolution, please contact our support team.</p>
